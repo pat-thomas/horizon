@@ -1,6 +1,5 @@
 import React , { useState } from 'react';
 import './App.css';
-import PromptDisplay from './components/PromptDisplay';
 import PromptBuilder from './components/PromptBuilder';
 
 const splitPromptIntoParts = (rawPrompt: string) => {
