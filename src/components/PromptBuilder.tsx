@@ -1,39 +1,56 @@
-import React , { ChangeEvent, FC , useState } from 'react';
+import React , { FC } from 'react';
 import PromptPiece from './PromptPiece';
 
 interface PromptBuilderProps {
-  rawPrompt: string
+  appState: any
+  onPromptPartWeightInputChange: any
 }
 
-const generateOutput = (builderState: any) => {
-  return 'this will be the output';
+const generatePartOutput = (part: any) => {
+  return `${part.text}::${part.weight}`;
 };
 
-const splitPrompt = (rawPrompt: string) => {
-  let splitParts = rawPrompt.split('::');
-  return splitParts.filter((part) => {
-    return part.trim() !== '';
-  });
+const generateOutput = (promptParts: any) => {
+  console.log(promptParts);
+
+  if (promptParts.length === 1 && promptParts[0].text.trim() === '') {
+    return '';
+  }
+
+  let outputStr = '';
+  outputStr = promptParts.map((part: any) => {
+    return generatePartOutput(part);
+  }).join('\n');
+
+  return outputStr;
 };
 
 const PromptBuilder: FC<PromptBuilderProps> = ({
-  rawPrompt
+  appState,
+  onPromptPartWeightInputChange
 }) => {
-  const [builderState, setBuilderState] = useState({});
-  const promptSplitIntoParts: string[] = splitPrompt(rawPrompt);
+  const promptParts: any[] = appState.promptParts;
+  const outputStr = generateOutput(promptParts);
+
   return (
     <div className="promptBuilder">
       <div>
-        <div>
-          {promptSplitIntoParts.map((rawPromptPartVal, index) => {
-            return (
-              <PromptPiece key={index} rawPromptPart={rawPromptPartVal} />
-            );
-          })}
-        </div>
+        {promptParts.map((partData: any, index: number) => {
+          const promptPieceProps = {
+            onPromptPartWeightInputChange: onPromptPartWeightInputChange,
+            key: index,
+            index: index,
+            weight: partData.weight,
+            rawPromptPart: partData.text
+          };
+          return (
+            <PromptPiece { ...promptPieceProps } />
+          );
+        })}
       </div>
-      <div>
-        <p>Output: {generateOutput(builderState)}</p>
+
+      <div className="output">
+        <p>/imagine prompt:{outputStr}</p>
       </div>
     </div>
   )

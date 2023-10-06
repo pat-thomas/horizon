@@ -1,37 +1,59 @@
 import React , { useState } from 'react';
 import './App.css';
 import PromptBuilder from './components/PromptBuilder';
+import RawPromptInput from './components/RawPromptInput';
 
-const splitPromptIntoParts = (rawPrompt: string) => {
-  console.log('rawPrompt', rawPrompt);
-  return rawPrompt.split('::');
+const splitPrompt = (rawPrompt: string) => {
+  let splitParts = rawPrompt.split('::');
+  return splitParts.filter((part) => {
+    return part.trim() !== '';
+  });
 };
 
-
 const App: React.FC = () => {
-  const [inputState, setInputState] = useState('');
-  const [promptParts, setPromptParts] = useState([]);
+  const [appState, setAppState] = useState({
+    rawPrompt: '',
+    promptParts: [{text: '', weight: '1'}]
+  });
 
-  const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);
-    setInputState(e.target.value);
+  const onRawPromptInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputVal = e.target.value;
+    let newAppState = { ...appState };
+    const rawPromptParts = splitPrompt(inputVal);
+    newAppState.rawPrompt = inputVal;
+    newAppState.promptParts = rawPromptParts.map((part) => {
+      return {
+        text: part.trim(),
+        weight: '1' // TODO make this parseable from the prompt, i.e. foo::1 bar::0.5 baz::2
+      }
+    });
+    console.log('set the new app state to', newAppState);
+    setAppState(newAppState);
+  }
+
+  const rawPromptInputProps = {
+    onChange: onRawPromptInputChange
+  }
+
+  const onPromptPartWeightInputChange = (promptIndex: number, newWeight: string) => {
+    let newAppState = { ...appState };
+    newAppState.promptParts[promptIndex].weight = newWeight
+    setAppState(newAppState);
   };
 
-  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    // this should just retrigger the rawPrompt render
-  };
+  const promptBuilderProps = {
+    appState: appState,
+    onPromptPartWeightInputChange: onPromptPartWeightInputChange
+  }
+
   return (
     <div className="App">
       <header>
         <p>Create your Horizon</p>
       </header>
       <div className="App-body">
-        <div>
-          <label> Enter your prompt here</label>
-          <input id="prompt" type="text" onChange={onInputChange} />
-        </div>
-        <button onClick={handleSubmit}>Click me to split apart prompt</button>
-        <PromptBuilder rawPrompt={inputState} />
+        <RawPromptInput { ...rawPromptInputProps } />
+        <PromptBuilder { ...promptBuilderProps } />
       </div>
     </div>
   );
