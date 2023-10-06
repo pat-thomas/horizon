@@ -2,6 +2,13 @@ import React , { useState } from 'react';
 import './App.css';
 import PromptBuilder from './components/PromptBuilder';
 import RawPromptInput from './components/RawPromptInput';
+import Output from './components/Output';
+import type { AppState } from './types';
+
+const initialAppState: AppState = {
+  rawPrompt: '',
+  promptParts: [{text: '', weight: '1'}]
+};
 
 const splitPrompt = (rawPrompt: string) => {
   let splitParts = rawPrompt.split('::');
@@ -11,10 +18,7 @@ const splitPrompt = (rawPrompt: string) => {
 };
 
 const App: React.FC = () => {
-  const [appState, setAppState] = useState({
-    rawPrompt: '',
-    promptParts: [{text: '', weight: '1'}]
-  });
+  const [appState, setAppState] = useState(initialAppState);
 
   const onRawPromptInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputVal = e.target.value;
@@ -46,6 +50,10 @@ const App: React.FC = () => {
     onPromptPartWeightInputChange: onPromptPartWeightInputChange
   }
 
+  const outputProps = {
+    appState: appState
+  }
+
   return (
     <div className="App">
       <header>
@@ -54,6 +62,7 @@ const App: React.FC = () => {
       <div className="App-body">
         <RawPromptInput { ...rawPromptInputProps } />
         <PromptBuilder { ...promptBuilderProps } />
+        <Output { ...outputProps } />
       </div>
     </div>
   );
