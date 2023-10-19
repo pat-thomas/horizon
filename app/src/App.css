@@ -45,6 +45,10 @@
   text-align: left;
 }
 
+.globalParams {
+  background-color: #384c66;
+}
+
 .App-link {
   color: #61dafb;
 }

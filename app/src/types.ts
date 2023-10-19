@@ -5,5 +5,8 @@ export type PromptPart = {
 
 export type AppState = {
   rawPrompt: string,
-  promptParts: PromptPart[]
+  promptParts: PromptPart[],
+  params: {
+    suffix: string
+  }
 };

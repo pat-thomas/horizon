@@ -7,7 +7,10 @@ import type { AppState } from './types';
 
 const initialAppState: AppState = {
   rawPrompt: '',
-  promptParts: [{text: '', weight: '1'}]
+  promptParts: [{text: '', weight: '1'}],
+  params: {
+    suffix: ''
+  }
 };
 
 const splitPrompt = (rawPrompt: string) => {
@@ -31,7 +34,6 @@ const App: React.FC = () => {
         weight: '1' // TODO make this parseable from the prompt, i.e. foo::1 bar::0.5 baz::2
       }
     });
-    console.log('set the new app state to', newAppState);
     setAppState(newAppState);
   }
 
@@ -47,12 +49,13 @@ const App: React.FC = () => {
 
   const promptBuilderProps = {
     appState: appState,
+    setAppState: setAppState,
     onPromptPartWeightInputChange: onPromptPartWeightInputChange
-  }
+  };
 
   const outputProps = {
     appState: appState
-  }
+  };
 
   return (
     <div className="App">
