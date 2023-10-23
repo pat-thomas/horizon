@@ -1,24 +1,24 @@
-import React , { ChangeEvent, FC , useState } from 'react';
+import React , { ChangeEvent, FC } from 'react';
 
 // inner PromptWeight component
 interface PromptWeightProps {
   index: number
-  onPromptPartWeightInputChange: any
   weight: string
+  eventListeners: any
 }
 
 const PromptWeight: FC<PromptWeightProps> = ({
   index,
-  onPromptPartWeightInputChange,
-  weight
+  weight,
+  eventListeners
 }) => {
-  const handlePromptWeightInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const evtVal = e.target.value;
-    onPromptPartWeightInputChange(index, evtVal);
-  };
+  const onChange = ((e: ChangeEvent<HTMLInputElement>) => {
+    return eventListeners.onPromptPartWeightInputChange(e, index, weight);
+  });
+
   return (
     <div className='App.PromptWeight'>
-      <input value={weight} id="promptWeight" type="text" onChange={handlePromptWeightInputChange} />
+      <input value={weight} id="promptWeight" type="text" onChange={onChange} />
     </div>
   )
 };
@@ -28,17 +28,17 @@ interface PromptPieceProps {
   index: number
   weight: string
   rawPromptPart: string
-  onPromptPartWeightInputChange: any // TODO type this function
+  eventListeners: any
 }
 
 const PromptPiece: FC<PromptPieceProps> = ({
   index,
   rawPromptPart,
-  onPromptPartWeightInputChange,
-  weight
+  weight,
+  eventListeners
 }) => {
   const promptWeightProps = {
-    onPromptPartWeightInputChange: onPromptPartWeightInputChange,
+    eventListeners: eventListeners,
     index: index,
     weight: weight
   };

@@ -1,13 +1,15 @@
 import React , { FC , useState } from 'react';
+import { AppState } from '../types';
 
 interface GlobalParamsProps {
-  appState: any,
-  setAppState: any
+  appState: AppState,
+  eventListeners: any
 }
 
 const GlobalParams: FC<GlobalParamsProps> = ({
   appState,
-  setAppState
+  eventListeners
+  //setAppState
 }) => {
   const [suffixVisible, setSuffixVisible] = useState(false);
 
@@ -15,19 +17,14 @@ const GlobalParams: FC<GlobalParamsProps> = ({
     setSuffixVisible((suffixVisible: boolean) => !suffixVisible);
   };
 
-  const onSuffixInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputVal = e.target.value;
-    let newAppState = { ...appState };
-    newAppState.params.suffix = inputVal;
-    setAppState(newAppState);
-  };
+  const onSuffixChange = eventListeners.onSuffixChange;
 
   return (
     <div className="globalParams">
       <p>Parameter configuration</p>
       <div className="globalParamsSuffix">
         <button onClick={toggleSuffixVisible}>Click to configure suffix</button>
-        {suffixVisible && <input type="text" onChange={onSuffixInputChange}></input>}
+        {suffixVisible && <input type="text" onChange={onSuffixChange}></input>}
       </div>
       <div>
         <button>Click to add artist</button>

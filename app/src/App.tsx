@@ -1,9 +1,10 @@
-import React , { useState } from 'react';
+import React , { useState, ChangeEvent } from 'react';
 import './App.css';
 import PromptBuilder from './components/PromptBuilder';
 import RawPromptInput from './components/RawPromptInput';
 import Output from './components/Output';
 import type { AppState } from './types';
+import eventListeners from './events';
 
 const initialAppState: AppState = {
   rawPrompt: '',
@@ -13,48 +14,29 @@ const initialAppState: AppState = {
   }
 };
 
-const splitPrompt = (rawPrompt: string) => {
-  let splitParts = rawPrompt.split('::');
-  return splitParts.filter((part) => {
-    return part.trim() !== '';
-  });
-};
-
 const App: React.FC = () => {
   const [appState, setAppState] = useState(initialAppState);
 
-  const onRawPromptInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputVal = e.target.value;
-    let newAppState = { ...appState };
-    const rawPromptParts = splitPrompt(inputVal);
-    newAppState.rawPrompt = inputVal;
-    newAppState.promptParts = rawPromptParts.map((part) => {
-      return {
-        text: part.trim(),
-        weight: '1' // TODO make this parseable from the prompt, i.e. foo::1 bar::0.5 baz::2
-      }
-    });
-    setAppState(newAppState);
+  const statefulEventListeners = {
+    onRawPromptInputChange: ((e: ChangeEvent<HTMLInputElement>) => {
+      setAppState(eventListeners.onRawPromptInputChange(appState, e));
+    }),
+    onPromptPartWeightInputChange: ((e: ChangeEvent<HTMLInputElement>, index: number, weight: string) => {
+      setAppState(eventListeners.onPromptPartWeightInputChange(appState, e, index, weight));
+    }),
+    onSuffixChange: ((e: ChangeEvent<HTMLInputElement>) => {
+      setAppState(eventListeners.onSuffixChange(appState, e));
+    }),
   }
 
-  const rawPromptInputProps = {
-    onChange: onRawPromptInputChange
-  }
-
-  const onPromptPartWeightInputChange = (promptIndex: number, newWeight: string) => {
-    let newAppState = { ...appState };
-    newAppState.promptParts[promptIndex].weight = newWeight
-    setAppState(newAppState);
+  const genericProps = {
+    appState: appState,
+    eventListeners: statefulEventListeners
   };
 
   const promptBuilderProps = {
-    appState: appState,
+    ...genericProps,
     setAppState: setAppState,
-    onPromptPartWeightInputChange: onPromptPartWeightInputChange
-  };
-
-  const outputProps = {
-    appState: appState
   };
 
   return (
@@ -63,9 +45,9 @@ const App: React.FC = () => {
         <p>Create your Horizon</p>
       </header>
       <div className="App-body">
-        <RawPromptInput { ...rawPromptInputProps } />
+        <RawPromptInput { ...genericProps } />
         <PromptBuilder { ...promptBuilderProps } />
-        <Output { ...outputProps } />
+        <Output { ...genericProps } />
       </div>
     </div>
   );

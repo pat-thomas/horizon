@@ -1,22 +1,21 @@
 import React , { FC } from 'react';
 import PromptPiece from './PromptPiece';
 import GlobalParams from './GlobalParams';
+import { AppState } from '../types';
 
 interface PromptBuilderProps {
-  appState: any
-  setAppState: any
-  onPromptPartWeightInputChange: any
+  appState: AppState
+  eventListeners: any
 }
 
 const PromptBuilder: FC<PromptBuilderProps> = ({
   appState,
-  setAppState,
-  onPromptPartWeightInputChange
+  eventListeners
 }) => {
   const promptParts: any[] = appState.promptParts;
   const globalParamsProps = {
     appState: appState,
-    setAppState: setAppState
+    eventListeners: eventListeners
   }
 
   return (
@@ -26,9 +25,9 @@ const PromptBuilder: FC<PromptBuilderProps> = ({
           const promptPieceProps = {
             weight: partData.weight,
             rawPromptPart: partData.text,
-            onPromptPartWeightInputChange: onPromptPartWeightInputChange,
             key: index,
-            index: index
+            index: index,
+            eventListeners: eventListeners
           };
           return (
             <PromptPiece { ...promptPieceProps } />
