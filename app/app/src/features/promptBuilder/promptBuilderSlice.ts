@@ -24,7 +24,7 @@ export const promptBuilderSlice = createSlice({
       state.parts = [...state.parts,
         {index: state.parts.length+1,
           text: lastPart.text,
-          weight: 0}
+          weight: lastPart.weight}
       ];
       return state
     },
@@ -37,13 +37,17 @@ export const promptBuilderSlice = createSlice({
         text,
         index
       } = action.payload
-      console.log('updatePartText')
       state.parts[index].text = text
     },
     incrementPartWeight: (state, action) => {
       const index = action.payload.index
       const part = state.parts[index]
       state.parts[index].weight += 1
+    },
+    decrementPartWeight: (state, action) => {
+      const index = action.payload.index
+      const part = state.parts[index]
+      state.parts[index].weight -= 1
     }
   },
 })
@@ -52,7 +56,8 @@ export const {
   addPart,
   removePart,
   updatePartText,
-  incrementPartWeight
+  incrementPartWeight,
+  decrementPartWeight
 } = promptBuilderSlice.actions
 
 export default promptBuilderSlice.reducer
