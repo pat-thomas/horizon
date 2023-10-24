@@ -1,3 +1,8 @@
+.Settings {
+  text-align: left;
+  background-color: rgba(100, 20, 20, 0.3);
+}
+
 .Output {
   text-align: left;
   background-color: rgba(0, 100, 80, 0.6);

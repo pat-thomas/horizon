@@ -4,20 +4,31 @@ import {
   removePart,
   updatePartText,
   incrementPartWeight,
-  decrementPartWeight
+  decrementPartWeight,
+  updateSettingWeightDifference
 } from "./promptBuilderSlice"
 import styles from "./PromptBuilder.module.css"
+
 
 const PromptPart = (props) => {
   const dispatch = useAppDispatch()
   const index = props.index;
-  const part = useAppSelector((state) => state.promptBuilder.parts[index]);
-  console.log(part)
+  const {
+    part,
+    settings
+  } = useAppSelector((state) => {
+    return {
+      part: state.promptBuilder.parts[index],
+      settings: state.promptBuilder.settings
+    }
+  });
+  const dispatchData = {index: index};
   return (
     <div key={index} className={styles.PromptPart}>
       <input className={styles.PartInput} type="text" onChange={(e) => dispatch(updatePartText({text: e.target.value, index: index}))} value={part.text} />
-      <button className={styles.PartButton} onClick={() => dispatch(incrementPartWeight({index: index}))}>Increment weight</button>
-      <button className={styles.PartButton} onClick={() => dispatch(decrementPartWeight({index: index}))}>Decrement weight</button>
+      <button className={styles.PartButton} onClick={() => dispatch(incrementPartWeight(dispatchData))}>+ weight ({settings.weightDifference})</button>
+      <button className={styles.PartButton} onClick={() => dispatch(decrementPartWeight(dispatchData))}>- weight ({settings.weightDifference})</button>
+      <button className={styles.PartButton} onClick={() => dispatch(removePart(dispatchData))}>- part</button>
       <p className={styles.PromptPartPreview}>{part.text}::{part.weight}</p>
     </div>
   )
@@ -25,7 +36,6 @@ const PromptPart = (props) => {
 
 const Output = () => {
   const parts = useAppSelector((state) => state.promptBuilder.parts)
-  console.log(parts);
   let outputStr = ''
   parts.forEach((p) => {
     const {
@@ -42,18 +52,32 @@ const Output = () => {
   )
 }
 
+const Settings = () => {
+  const dispatch = useAppDispatch()
+  const settings = useAppSelector((state) => state.promptBuilder.settings)
+  return (
+    <div className={styles.Settings}>
+      <div>
+        <label>Weight difference</label>
+        <input type="text" onChange={(e) => dispatch(updateSettingWeightDifference(e.target.value))} value={settings.weightDifference} />
+      </div>
+    </div>
+  )
+}
+
 export function PromptBuilder() {
   const dispatch = useAppDispatch()
   const parts = useAppSelector((state) => state.promptBuilder.parts)
 
   return (
     <div>
+      <Settings />
       <div className="promptBuilder">
-        <button onClick={() => dispatch(addPart())}>Add part</button>
         {parts.map((data, index) => {
           const promptPartProps = { index: index }
           return <PromptPart { ...promptPartProps } />
         })}
+        <button onClick={() => dispatch(addPart())}>+ part</button>
       </div>
       <Output />
     </div>
