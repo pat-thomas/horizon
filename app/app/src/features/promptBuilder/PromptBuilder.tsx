@@ -33,8 +33,6 @@ const PromptPart = (props) => {
   const {r, g, b} = part.backgroundColor;
   const divBackgroundColorStr = rgbStr({r: r - backgroundColorDiff, g: g - backgroundColorDiff, b: b - backgroundColorDiff})
   const previewBackgroundColorStr = rgbStr(backgroundColorRgb)
-  console.log('divBackgroundColorStr', divBackgroundColorStr)
-  console.log('previewBackgroundColorStr', previewBackgroundColorStr)
   return (
     <div style={{'background-color': divBackgroundColorStr}} key={index} className={styles.PromptPart}>
       <input className={styles.PartInput} type="text" onChange={(e) => dispatch(updatePartText({text: e.target.value, index: index}))} value={part.text} />
@@ -59,7 +57,6 @@ const Output = () => {
   const firstPart = parts[0]
   const backgroundColorRgbBase = firstPart.backgroundColor
   const baseBackgroundColorStr = rgbStr(backgroundColorRgbBase)
-  console.log('baseBackgroundColorStr', baseBackgroundColorStr)
   return (
     <div id="Output" className={styles.Output}>
       <div className={styles.OutputPartPreview} style={{'background-color': 'rgb(50, 50, 50)', 'border': '3px solid grey'}}>/imagine&nbsp;</div>
@@ -70,9 +67,7 @@ const Output = () => {
             weight
           } = p;
           const part = parts[index]
-          console.log('part', part)
           const backgroundColorRgb = part.backgroundColor
-          console.log('backgroundColorRgb', backgroundColorRgb)
           const previewBackgroundColorStr = rgbStr({...backgroundColorRgb})
           const borderColorDiff = -30
           const borderColorStr = rgbStr({
@@ -141,7 +136,6 @@ export function PromptBuilder() {
         <button onClick={() => {
           navigator.clipboard.writeText(document.getElementById("OutputText").textContent)
             .then(() => {
-              console.log('copied text to clipboard')
             })
         }}>Copy prompt to clipboard</button>
       </div>
