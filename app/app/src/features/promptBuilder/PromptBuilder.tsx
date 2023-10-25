@@ -15,6 +15,10 @@ const rgbStr = ({r, g, b}) => {
   return `rgb(${r}, ${g}, ${b})`
 }
 
+const copyPromptPart = (text) => {
+  navigator.clipboard.writeText(text)
+}
+
 const PromptPart = (props) => {
   const dispatch = useAppDispatch()
   const index = props.index;
@@ -34,11 +38,12 @@ const PromptPart = (props) => {
   const divBackgroundColorStr = rgbStr({r: r - backgroundColorDiff, g: g - backgroundColorDiff, b: b - backgroundColorDiff})
   const previewBackgroundColorStr = rgbStr(backgroundColorRgb)
   return (
-    <div style={{'background-color': divBackgroundColorStr}} key={index} className={styles.PromptPart}>
+    <div className={styles.PromptPart} style={{'background-color': divBackgroundColorStr}} key={index}>
       <input className={styles.PartInput} type="text" onChange={(e) => dispatch(updatePartText({text: e.target.value, index: index}))} value={part.text} />
       <button className={styles.PartButton} onClick={() => dispatch(incrementPartWeight(dispatchData))}>+ weight ({settings.weightDifference})</button>
       <button className={styles.PartButton} onClick={() => dispatch(decrementPartWeight(dispatchData))}>- weight ({settings.weightDifference})</button>
       <button className={styles.PartButton} onClick={() => dispatch(removePart(dispatchData))}>- part</button>
+      <button className={styles.PartButton} onClick={() => copyPromptPart(part.text) }>Copy part to clipboard</button>
       <p style={{'background-color': previewBackgroundColorStr}} className={styles.PromptPartPreview}>{part.text}::{part.weight}</p>
     </div>
   )

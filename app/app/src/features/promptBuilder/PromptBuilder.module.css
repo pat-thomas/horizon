@@ -19,6 +19,8 @@
 
 .PromptPart {
   color: white;
+  align-items: left;
+  justify-content: left;
 }
 
 .PromptPartPreview {

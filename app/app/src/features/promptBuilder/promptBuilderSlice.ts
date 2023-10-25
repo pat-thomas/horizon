@@ -8,14 +8,33 @@ export interface PromptBuilderState {
 
 const initialState: PromptBuilderState = {
   parts: [{
-    text: 'tree , minimal , 2d',
+    text: 'tree , first , minimal , 2d',
     weight: 1,
     backgroundColor: {
       r: 30,
       g: 100,
       b: 120,
     }
-  }],
+  },
+  {
+    text: 'cat , second',
+    weight: 1,
+    backgroundColor: {
+      r: 30,
+      g: 100,
+      b: 40,
+    }
+  },
+  {
+    text: 'cheese, third',
+    weight: 1,
+    backgroundColor: {
+      r: 30,
+      g: 100,
+      b: 80,
+    }
+  }
+  ],
   settings: {
     weightDifference: 0.25,
     style: 250,
@@ -54,9 +73,12 @@ export const promptBuilderSlice = createSlice({
       ];
     },
     removePart: (state, action) => {
-      const index = action.payload
       const currParts = state.parts
-      state.parts = [...currParts.splice(0, index-1), ...currParts.splice(index, currParts.length-1)]
+      const index = action.payload.index
+      state.parts = [
+        ...currParts.slice(0, index),
+        ...currParts.slice(index+1, currParts.length)
+      ]
     },
     updatePartText: (state, action) => {
       const {
