@@ -7,33 +7,16 @@ export interface PromptBuilderState {
 }
 
 const initialState: PromptBuilderState = {
-  parts: [{
-    text: 'tree , first , minimal , 2d',
-    weight: 1,
-    backgroundColor: {
-      r: 30,
-      g: 100,
-      b: 120,
+  parts: [
+    {
+      text: 'face , minimal',
+      weight: 1,
+      backgroundColor: {
+        r: 30,
+        g: 100,
+        b: 120,
+      }
     }
-  },
-  {
-    text: 'cat , second',
-    weight: 1,
-    backgroundColor: {
-      r: 30,
-      g: 100,
-      b: 40,
-    }
-  },
-  {
-    text: 'cheese, third',
-    weight: 1,
-    backgroundColor: {
-      r: 30,
-      g: 100,
-      b: 80,
-    }
-  }
   ],
   settings: {
     weightDifference: 0.25,

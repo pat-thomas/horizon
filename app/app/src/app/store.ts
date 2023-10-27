@@ -1,10 +1,14 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit"
-import counterReducer from "../features/counter/counterSlice"
 import promptBuilderReducer from "../features/promptBuilder/promptBuilderSlice"
+import { combineReducers  } from "redux"
+import { connectRouter } from "connected-react-router"
+import { createBrowserHistory } from "history"
+
+export const history = createBrowserHistory()
 
 export const store = configureStore({
   reducer: {
-    counter: counterReducer,
+    router: connectRouter(history),
     promptBuilder: promptBuilderReducer
   },
 })
