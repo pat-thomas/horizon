@@ -207,11 +207,4 @@ export function PromptBuilder() {
       show: true
     }
   })
-
-  return (
-    <div>
-      <Settings />
-      <Output />
-    </div>
-  )
 }
