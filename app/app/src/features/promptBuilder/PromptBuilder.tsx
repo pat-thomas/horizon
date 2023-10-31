@@ -10,6 +10,10 @@ import {
   updateSettingChaos
 } from "./promptBuilderSlice"
 import styles from "./PromptBuilder.module.css"
+import Button from "react-bootstrap/Button"
+import Badge from "react-bootstrap/Badge"
+import Stack from "react-bootstrap/Stack"
+import Form from "react-bootstrap/Form"
 
 const rgbStr = ({r, g, b}) => {
   return `rgb(${r}, ${g}, ${b})`
@@ -37,14 +41,23 @@ const PromptPart = (props) => {
   const {r, g, b} = part.backgroundColor;
   const divBackgroundColorStr = rgbStr({r: r - backgroundColorDiff, g: g - backgroundColorDiff, b: b - backgroundColorDiff})
   const previewBackgroundColorStr = rgbStr(backgroundColorRgb)
+  const runDispatch = (handler) => {
+    return dispatch(handler(dispatchData))
+  }
+
   return (
-    <div className={styles.PromptPart} style={{'background-color': divBackgroundColorStr}} key={index}>
-      <input className={styles.PartInput} type="text" onChange={(e) => dispatch(updatePartText({text: e.target.value, index: index}))} value={part.text} />
-      <button className={styles.PartButton} onClick={() => dispatch(incrementPartWeight(dispatchData))}>+ weight ({settings.weightDifference})</button>
-      <button className={styles.PartButton} onClick={() => dispatch(decrementPartWeight(dispatchData))}>- weight ({settings.weightDifference})</button>
-      <button className={styles.PartButton} onClick={() => dispatch(removePart(dispatchData))}>- part</button>
-      <button className={styles.PartButton} onClick={() => copyPromptPart(part.text) }>Copy part to clipboard</button>
-      <p style={{'background-color': previewBackgroundColorStr}} className={styles.PromptPartPreview}>{part.text}::{part.weight}</p>
+    <div style={{'background-color': divBackgroundColorStr, 'color': 'white'}} key={index}>
+      <Form>
+        <Form.Group>
+          <Form.Label>Enter/modify prompt part</Form.Label>
+          <Form.Control type="text" onChange={(e) => dispatch(updatePartText({text: e.target.value, index: index}))} value={part.text} />
+        </Form.Group>
+      </Form>
+      <Button onClick={() => runDispatch(incrementPartWeight)}>+ weight ({settings.weightDifference})</Button>
+      <Button onClick={() => runDispatch(decrementPartWeight)}>- weight ({settings.weightDifference})</Button>
+      <Button onClick={() => runDispatch(removePart)}>- part</Button>
+      <Button onClick={() => copyPromptPart(part.text) }>Copy part to clipboard</Button>
+      <p style={{'background-color': previewBackgroundColorStr}}>{part.text}::{part.weight}</p>
     </div>
   )
 }
@@ -63,8 +76,8 @@ const Output = () => {
   const backgroundColorRgbBase = firstPart.backgroundColor
   const baseBackgroundColorStr = rgbStr(backgroundColorRgbBase)
   return (
-    <div id="Output" className={styles.Output}>
-      <div className={styles.OutputPartPreview} style={{'background-color': 'rgb(50, 50, 50)', 'border': '3px solid grey'}}>/imagine&nbsp;</div>
+    <div id="Output">
+      <div style={{'background-color': 'rgb(50, 50, 50)', 'border': '3px solid grey'}}>/imagine&nbsp;</div>
       <div id="OutputText">
         {parts.map((p, index) => {
           const {
@@ -85,12 +98,12 @@ const Output = () => {
             'borderColor': borderColorStr
           }
           return (
-            <div className={styles.OutputPartPreview} style={{...styleProps}}>
+            <div style={{...styleProps}}>
               {text}::{weight}&nbsp;
             </div>
           )
         })}
-        <div className={styles.OutputPartPreview} style={{'background-color': 'rgb(50, 50, 50)', 'border': '3px solid grey'}}>--s {settings.style} --c {settings.chaos}</div>
+        <div style={{'background-color': 'rgb(50, 50, 50)', 'border': '3px solid grey'}}>--s {settings.style} --c {settings.chaos}</div>
       </div>
     </div>
   )
@@ -105,19 +118,74 @@ const Settings = () => {
     chaos
   } = settings
   return (
-    <div className={styles.Settings}>
-      <div>
-        <label>Set weight difference</label>
-        <input type="text" onChange={(e) => dispatch(updateSettingWeightDifference(e.target.value))} value={weightDifference} />
-      </div>
-      <div>
-        <label>Set style</label>
-        <input type="text" onChange={(e) => dispatch(updateSettingStyle(e.target.value))} value={style} />
-      </div>
-      <div>
-        <label>Set chaos</label>
-        <input type="text" onChange={(e) => dispatch(updateSettingChaos(e.target.value))} value={chaos} />
-      </div>
+    <Form>
+      <Form.Group className="mb-3" controlId="Settings.WeightDifference">
+        <Form.Label>Set weight difference</Form.Label>
+        <Form.Control type="text" onChange={(e) => dispatch(updateSettingWeightDifference(e.target.value))} value={weightDifference} />
+      </Form.Group>
+      <Form.Group className="mb-3" controlId="Settings.WeightDifference">
+        <Form.Label>Set style</Form.Label>
+        <Form.Control type="text" onChange={(e) => dispatch(updateSettingStyle(e.target.value))} value={style} />
+      </Form.Group>
+      <Form.Group className="mb-3" controlId="Settings.WeightDifference">
+        <Form.Label>Set chaos</Form.Label>
+        <Form.Control type="text" onChange={(e) => dispatch(updateSettingChaos(e.target.value))} value={chaos} />
+      </Form.Group>
+    </Form>
+  )
+}
+
+const FetchPrompt = () => {
+  const dispatch = useAppDispatch()
+  //const loadedPrompts = useAppSelector((state) => state.promptBuilder.loadedPrompts)
+  return (
+    <div>
+      <p>the thing to fetch the prompt from the server will go here</p>
+    </div>
+  )
+}
+
+const PartBuilder = ({parts}) => {
+  return (
+    <div>
+      {parts.map((data, index) => {
+        const promptPartProps = { index: index }
+        return <PromptPart { ...promptPartProps } />
+      })}
+      <Button onClick={() => dispatch(addPart())}>+ part</Button>
+    </div>
+  )
+}
+
+const CopyPrompt = () => {
+  return (
+    <div>
+      <Button
+        onClick={() => {
+          navigator.clipboard.writeText(document.getElementById("OutputText").textContent)
+            .then(() => {
+            })
+        }}>
+        Copy prompt to clipboard
+      </Button>
+    </div>
+  )
+}
+
+const renderBuilder = (parts, uiConfig) => {
+  const {
+    settings,
+    fetchPrompt,
+    partBuilder,
+    copyPrompt
+  } = uiConfig;
+  const builderProps = { parts: parts };
+  return (
+    <div>
+      { fetchPrompt.show && <FetchPrompt /> }
+      { settings.show && <Settings /> }
+      { partBuilder.show && <PartBuilder { ...builderProps } /> }
+      { copyPrompt.show && <CopyPrompt /> }
     </div>
   )
 }
@@ -125,25 +193,25 @@ const Settings = () => {
 export function PromptBuilder() {
   const dispatch = useAppDispatch()
   const parts = useAppSelector((state) => state.promptBuilder.parts)
+  return renderBuilder(parts, {
+    fetchPrompt: {
+      show: true
+    },
+    settings: {
+      show: false
+    },
+    partBuilder: {
+      show: true
+    },
+    copyPrompt: {
+      show: true
+    }
+  })
 
   return (
     <div>
       <Settings />
-      <div className="promptBuilder">
-        {parts.map((data, index) => {
-          const promptPartProps = { index: index }
-          return <PromptPart { ...promptPartProps } />
-        })}
-        <button onClick={() => dispatch(addPart())}>+ part</button>
-      </div>
       <Output />
-      <div>
-        <button onClick={() => {
-          navigator.clipboard.writeText(document.getElementById("OutputText").textContent)
-            .then(() => {
-            })
-        }}>Copy prompt to clipboard</button>
-      </div>
     </div>
   )
 }

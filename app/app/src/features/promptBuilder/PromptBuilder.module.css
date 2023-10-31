@@ -1,3 +1,14 @@
+.PromptBuilder {
+  background-color: blue;
+}
+
+.PromptBordered {
+  border-style: solid;
+  border-color: white;
+  border-width: 3px;
+  border-radius: 5px;
+}
+
 .Settings {
   text-align: left;
   background-color: rgba(150, 20, 120, 0.2);
@@ -15,6 +26,7 @@
   float: left;
   border-style: solid;
   border-width: 3px;
+  border-radius: 5px;
 }
 
 .PromptPart {
@@ -37,4 +49,11 @@
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   font-size: calc(2px + 2vmin);
+}
+
+.CopyPrompt {
+  align-items: left;
+  justify-content: left;
+  float: left;
+  font-size: calc(3px + 2vmin);
 }
