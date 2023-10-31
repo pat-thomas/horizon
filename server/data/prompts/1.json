@@ -1,0 +1,12 @@
+{
+  "parts": [
+    {
+      "text": "a fractal recursive tree",
+      "weight": 1
+    },
+    {
+      "text": "a cool cat",
+      "weight": 0.5
+    }
+  ]
+}
