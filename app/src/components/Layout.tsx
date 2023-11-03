@@ -1,8 +1,9 @@
+import styles from "./Layout.module.css"
 import { Outlet , Link } from 'react-router-dom'
 
 const Layout = () => {
   return (
-    <>
+    <div className={styles.Layout}>
       <nav>
         <ul>
           <li>
@@ -15,7 +16,7 @@ const Layout = () => {
       </nav>
 
       <Outlet />
-    </>
+    </div>
   )
 }
 

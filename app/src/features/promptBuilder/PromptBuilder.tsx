@@ -8,7 +8,9 @@ import {
   updateSettingWeightDifference,
   updateSettingStyle,
   updateSettingChaos,
-  getPromptById
+  getPromptById,
+  useLoadedPromptToSetBuilder,
+  defaultRgb
 } from "./promptBuilderSlice"
 import styles from "./PromptBuilder.module.css"
 import Button from "react-bootstrap/Button"
@@ -34,14 +36,26 @@ const PromptPart = (props) => {
     settings
   } = useAppSelector((state) => {
     return {
-      part: state.promptBuilder.parts[index],
+      part: state.promptBuilder.activePrompt.parts[index],
       settings: state.promptBuilder.settings
     }
   });
   const dispatchData = {index: index};
-  const backgroundColorRgb = part.backgroundColor;
+  let prevColor;
+  if (index >= 1 && part[index-1] && part[index-1].backgroundColor) {
+    prevColor = part[index-1].backgroundColor
+  }
+  let backgroundColorRgb;
+  if (prevColor) {
+    backgroundColorRgb = nextColor(prevColor)
+  } else {
+    backgroundColorRgb = part.backgroundColor || defaultRgb
+  }
+
+  console.log('backgroundColorRgb', backgroundColorRgb)
+
   const backgroundColorDiff = 5;
-  const {r, g, b} = part.backgroundColor;
+  const {r, g, b} = backgroundColorRgb
   const divBackgroundColorStr = rgbStr({r: r - backgroundColorDiff, g: g - backgroundColorDiff, b: b - backgroundColorDiff})
   const previewBackgroundColorStr = rgbStr(backgroundColorRgb)
   const runDispatch = (handler) => {
@@ -60,7 +74,7 @@ const PromptPart = (props) => {
       <Button onClick={() => runDispatch(decrementPartWeight)}>- weight ({settings.weightDifference})</Button>
       <Button onClick={() => runDispatch(removePart)}>- part</Button>
       <Button onClick={() => copyPromptPart(part.text) }>Copy part to clipboard</Button>
-      <p style={{'backgroundColor': previewBackgroundColorStr}}>{part.text}::{part.weight}</p>
+      <p style={{'backgroundColor': previewBackgroundColorStr}}>{part.text} ::{part.weight}</p>
     </div>
   )
 }
@@ -71,16 +85,14 @@ const Output = () => {
     settings
   } = useAppSelector((state) => {
     return {
-      parts: state.promptBuilder.parts,
+      parts: state.promptBuilder.activePrompt.parts,
       settings: state.promptBuilder.settings
     }
   });
   const firstPart = parts[0]
-  const backgroundColorRgbBase = firstPart.backgroundColor
-  const baseBackgroundColorStr = rgbStr(backgroundColorRgbBase)
   return (
     <div id="Output">
-      <div style={{'backgroundColor': 'rgb(50, 50, 50)', 'border': '3px solid grey'}}>/imagine&nbsp;</div>
+      <div style={{'backgroundColor': 'rgb(120, 120, 130)', 'border': '3px solid grey'}}>/imagine&nbsp;</div>
       <div id="OutputText">
         {parts.map((p, index) => {
           const {
@@ -88,25 +100,13 @@ const Output = () => {
             weight
           } = p;
           const part = parts[index]
-          const backgroundColorRgb = part.backgroundColor
-          const previewBackgroundColorStr = rgbStr({...backgroundColorRgb})
-          const borderColorDiff = -30
-          const borderColorStr = rgbStr({
-            r: backgroundColorRgb.r + borderColorDiff,
-            g: backgroundColorRgb.g + borderColorDiff,
-            b: backgroundColorRgb.b + borderColorDiff
-          })
-          const styleProps = {
-            'backgroundColor': previewBackgroundColorStr,
-            'borderColor': borderColorStr
-          }
           return (
-            <div style={{...styleProps}}>
-              {text}::{weight}&nbsp;
+            <div>
+              {text} ::{weight}&nbsp;
             </div>
           )
         })}
-        <div style={{'backgroundColor': 'rgb(50, 50, 50)', 'border': '3px solid grey'}}>--s {settings.style} --c {settings.chaos}</div>
+        <div style={{'backgroundColor': 'rgb(120, 120, 130)', 'border': '3px solid grey'}}>--s {settings.style} --c {settings.chaos}</div>
       </div>
     </div>
   )
@@ -138,36 +138,43 @@ const Settings = () => {
   )
 }
 
-const FetchPrompt = ({preview}) => {
-  useEffect(() => {
-  })
+const FetchPrompt = ({
+  preview,
+  fetchForm
+}) => {
   const dispatch = useAppDispatch()
   const [idInputState, setIdInputState] = useState('')
   const loadedPrompts = useAppSelector((state) => state.promptBuilder.loadedPrompts)
-  const loadedPrompt = loadedPrompts && loadedPrompts[idInputState]
-  console.log('loadedPrompts', loadedPrompts)
+  const activePrompt = useAppSelector((state) => state.promptBuilder.activePrompt)
   const handleGetPromptClick = () => {
     dispatch(getPromptById(idInputState))
   }
+  const handleSelect = (promptId) => {
+    dispatch(useLoadedPromptToSetBuilder(promptId))
+  }
   return (
-    <>
-      <Form>
-        <Form.Group className="mb-3" controlId="Prompt.Id">
-          <Form.Label>Enter prompt ID</Form.Label>
-          <Form.Control type="text" onChange={(e) => setIdInputState(e.target.value)} value={idInputState} />
-          <Button onClick={handleGetPromptClick}>Load prompt</Button>
-        </Form.Group>
-      </Form>
-      <div className="FetchPromptPreview">
+    <div className={styles.FetchPrompt}>
+      {fetchForm &&
+        <Form>
+          <Form.Group className="mb-3" controlId="Prompt.Id">
+            <Form.Label>Enter prompt ID</Form.Label>
+            <Form.Control type="text" onChange={(e) => setIdInputState(e.target.value)} value={idInputState} />
+            <Button onClick={() => handleGetPromptClick()}>Load prompt</Button>
+          </Form.Group>
+        </Form>
+      }
+      <div>
+        {activePrompt &&
+          <p>Current active prompt: {activePrompt.id}</p>
+        }
         {loadedPrompts.map((lp) => {
           return (
-            <div>
-              <div className="FetchPromptId">{lp.id}</div>
+            <div className={styles.FetchPromptPreview}>
+              <Button onClick={() => handleSelect(lp.id)}>Select prompt to build ({lp.id})</Button>
               <div className="FetchPromptParts">
               {lp.parts && lp.parts.map((p, idx) => {
-                console.log(p)
                 return (
-                  <p>&nbsp;&nbsp;&nbsp;{p.text}</p>
+                  <p>&nbsp;&nbsp;&nbsp;{p.text} ::{p.weight}</p>
                 )
               })}
               </div>
@@ -175,11 +182,12 @@ const FetchPrompt = ({preview}) => {
           )
         })}
       </div>
-    </>
+    </div>
   )
 }
 
 const PartBuilder = ({parts}) => {
+  const dispatch = useAppDispatch()
   return (
     <div>
       {parts.map((data, index) => {
@@ -228,24 +236,25 @@ const renderBuilder = (parts, uiConfig) => {
 
 export function PromptBuilder() {
   const dispatch = useAppDispatch()
-  const parts = useAppSelector((state) => state.promptBuilder.parts)
+  const parts = useAppSelector((state) => state.promptBuilder.activePrompt.parts)
   const { promptId } = useParams()
   return renderBuilder(parts, {
     fetchPrompt: {
       show: true,
+      fetchForm: true,
       preview: true
     },
     settings: {
       show: false
     },
     partBuilder: {
-      show: false
+      show: true
     },
     output: {
-      show: false
+      show: true
     },
     copyPrompt: {
-      show: false
+      show: true
     }
   })
 }

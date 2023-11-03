@@ -3,12 +3,8 @@ import { RootState, AppThunk } from "../../app/store"
 import { PromptPart } from "../../app/types"
 import axios from 'axios'
 
-type Prompt = [PromptPart]
-
 interface LoadedPrompt extends Prompt {
-  id: string,
-  loading: false,
-  error: ''
+  id: string
 }
 
 export interface PromptBuilderState {
@@ -16,32 +12,64 @@ export interface PromptBuilderState {
   loadedPrompts: [LoadedPrompt]
 }
 
-const initialState: PromptBuilderState = {
+const nextColor = ({r, g, b}) => {
+  return {
+    r: r+30,
+    g: g-25,
+    b: b+5
+  }
+}
+
+export const defaultRgb = {
+  r: 30,
+  g: 100,
+  b: 120
+}
+
+const samplePrompt1 = {
   parts: [
     {
       text: 'face , minimal',
       weight: 1,
-      backgroundColor: {
-        r: 30,
-        g: 100,
-        b: 120,
-      }
+      backgroundColor: defaultRgb
     }
-  ],
+  ]
+}
+
+const samplePrompt2 = {
+  parts: [
+    {
+      text: 'animals dancing , magazine photography',
+      weight: 1,
+      backgroundColor: defaultRgb
+    },
+    {
+      text: 'cardboard cutout of the universe',
+      weight: 0.5,
+      backgroundColor: nextColor(defaultRgb)
+    }
+  ]
+}
+
+const initialState: PromptBuilderState = {
+  activePrompt: samplePrompt1,
   settings: {
     weightDifference: 0.25,
     style: 250,
     chaos: 0
   },
   loadedPrompts: [
-    {id: 'sample'}
+    { ...samplePrompt1, id: 'sample1' },
+    { ...samplePrompt2, id: 'sample2' }
   ]
 }
 
 export const getPromptById = createAsyncThunk(
   'prompt/getPromptById',
   async (promptId: string, thunkAPI) => {
-    const response = await axios.get(`http://localhost:5173/api/prompts/${promptId}`)
+    const path = `http://localhost:5173/api/prompts/${promptId}`
+    console.log('about to call path', path)
+    const response = await axios.get(path)
     return { ...response.data , id: promptId }
   }
 )
@@ -61,25 +89,21 @@ export const promptBuilderSlice = createSlice({
       state.settings.chaos = action.payload
     },
     addPart: (state) => {
-      let lastPart = state.parts[state.parts.length-1];
-      lastPart = lastPart || initialState.parts[0];
-      state.parts = [...state.parts,
+      let lastPart = state.activePrompt.parts[state.activePrompt.parts.length-1];
+      lastPart = lastPart || initialState.activePrompt.parts[0];
+      state.activePrompt.parts = [...state.activePrompt.parts,
         {
-          index: state.parts.length+1,
+          index: state.activePrompt.parts.length+1,
           text: lastPart.text,
           weight: lastPart.weight,
-          backgroundColor: {
-            r: lastPart.backgroundColor.r + 30,
-            g: lastPart.backgroundColor.g - 25,
-            b: lastPart.backgroundColor.b + 5
-          }
+          backgroundColor: nextColor(lastPart.backgroundColor || defaultRgb)
         }
       ];
     },
     removePart: (state, action) => {
-      const currParts = state.parts
+      const currParts = state.activePrompt.parts
       const index = action.payload.index
-      state.parts = [
+      state.activePrompt.parts = [
         ...currParts.slice(0, index),
         ...currParts.slice(index+1, currParts.length)
       ]
@@ -89,35 +113,28 @@ export const promptBuilderSlice = createSlice({
         text,
         index
       } = action.payload
-      state.parts[index].text = text
+      state.activePrompt.parts[index].text = text
     },
     incrementPartWeight: (state, action) => {
       const weightDifference = Number(state.settings.weightDifference)
       const index = action.payload.index
-      const part = state.parts[index]
-      state.parts[index].weight += weightDifference
+      const part = state.activePrompt.parts[index]
+      state.activePrompt.parts[index].weight += weightDifference
     },
     decrementPartWeight: (state, action) => {
       const weightDifference = Number(state.settings.weightDifference)
       const index = action.payload.index
-      const part = state.parts[index]
-      state.parts[index].weight -= weightDifference
+      const part = state.activePrompt.parts[index]
+      state.activePrompt.parts[index].weight -= weightDifference
     },
-    //loadPrompt: (state, action) => {
-    //  return function(dispatch) => {
-    //    const promptId = action.payload
-    //    console.log('loadPrompt. promptId:', promptId)
-    //    const path = `/api/prompt/${promptId}`
-    //    axios.get(path)
-    //      .then(response => {
-    //        console.log(response)
-    //        dispatch({
-    //          type: '...',
-    //          payload: response.data
-    //        })
-    //      })
-    //  }
-    //}
+    useLoadedPromptToSetBuilder: (state, action) => {
+      const promptId = action.payload
+      const matchingLoadedPrompts = state.loadedPrompts.filter((p) => {
+        return p.id === promptId
+      })
+      // there should never be more than one match anyway, if there is, just use the first
+      state.activePrompt = matchingLoadedPrompts[0]
+    }
   },
   extraReducers: (builder) => {
     builder.addCase(getPromptById.pending, (state) => {
@@ -127,6 +144,18 @@ export const promptBuilderSlice = createSlice({
     })
     builder.addCase(getPromptById.fulfilled, (state, action) => {
       // state.loading = false
+      let currPrompts = state.loadedPrompts
+      const promptId = action.payload.id
+      let match = false
+      currPrompts.forEach((p) => {
+        if (p.id === promptId) {
+          p = action.payload
+          match = true
+        }
+      })
+      if (match) {
+        return state
+      }
       state.loadedPrompts = [...state.loadedPrompts , action.payload]
     })
     builder.addCase(getPromptById.rejected, (state, action) => {
@@ -145,7 +174,7 @@ export const {
   updateSettingWeightDifference,
   updateSettingStyle,
   updateSettingChaos,
-  loadPrompt
+  useLoadedPromptToSetBuilder
 } = promptBuilderSlice.actions
 
 export default promptBuilderSlice.reducer
