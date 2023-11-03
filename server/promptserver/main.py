@@ -11,7 +11,7 @@ def hello_world():
 def get_user_profile(username):
     return f'{username}\'s profile'
 
-@app.get('/api/prompt/<prompt_id>')
+@app.get('/api/prompts/<prompt_id>')
 def get_prompt(prompt_id):
     prompt_data = datastore.db_get_prompt(prompt_id)
     if prompt_data: return prompt_data

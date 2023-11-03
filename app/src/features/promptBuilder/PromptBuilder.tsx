@@ -8,14 +8,15 @@ import {
   updateSettingWeightDifference,
   updateSettingStyle,
   updateSettingChaos,
-  loadPrompt
+  getPromptById
 } from "./promptBuilderSlice"
 import styles from "./PromptBuilder.module.css"
 import Button from "react-bootstrap/Button"
 import Badge from "react-bootstrap/Badge"
 import Stack from "react-bootstrap/Stack"
 import Form from "react-bootstrap/Form"
-import { useState } from 'react'
+import { useState , useEffect } from 'react'
+import { useParams } from "react-router-dom"
 
 const rgbStr = ({r, g, b}) => {
   return `rgb(${r}, ${g}, ${b})`
@@ -137,18 +138,44 @@ const Settings = () => {
   )
 }
 
-const FetchPrompt = () => {
+const FetchPrompt = ({preview}) => {
+  useEffect(() => {
+  })
   const dispatch = useAppDispatch()
-  const [idInputState, setIdInputState] = useState('');
-  //const loadedPrompts = useAppSelector((state) => state.promptBuilder.loadedPrompts)
+  const [idInputState, setIdInputState] = useState('')
+  const loadedPrompts = useAppSelector((state) => state.promptBuilder.loadedPrompts)
+  const loadedPrompt = loadedPrompts && loadedPrompts[idInputState]
+  console.log('loadedPrompts', loadedPrompts)
+  const handleGetPromptClick = () => {
+    dispatch(getPromptById(idInputState))
+  }
   return (
-    <Form>
-      <Form.Group className="mb-3" controlId="Prompt.Id">
-        <Form.Label>Enter prompt ID</Form.Label>
-        <Form.Control type="text" onChange={(e) => setIdInputState(e.target.value)} value={idInputState} />
-        <Button onClick={() => dispatch(loadPrompt(idInputState))}>Load prompt</Button>
-      </Form.Group>
-    </Form>
+    <>
+      <Form>
+        <Form.Group className="mb-3" controlId="Prompt.Id">
+          <Form.Label>Enter prompt ID</Form.Label>
+          <Form.Control type="text" onChange={(e) => setIdInputState(e.target.value)} value={idInputState} />
+          <Button onClick={handleGetPromptClick}>Load prompt</Button>
+        </Form.Group>
+      </Form>
+      <div className="FetchPromptPreview">
+        {loadedPrompts.map((lp) => {
+          return (
+            <div>
+              <div className="FetchPromptId">{lp.id}</div>
+              <div className="FetchPromptParts">
+              {lp.parts && lp.parts.map((p, idx) => {
+                console.log(p)
+                return (
+                  <p>&nbsp;&nbsp;&nbsp;{p.text}</p>
+                )
+              })}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </>
   )
 }
 
@@ -190,7 +217,7 @@ const renderBuilder = (parts, uiConfig) => {
   const builderProps = { parts: parts };
   return (
     <div>
-      { fetchPrompt.show && <FetchPrompt /> }
+      { fetchPrompt.show && <FetchPrompt { ...fetchPrompt } /> }
       { settings.show    && <Settings /> }
       { partBuilder.show && <PartBuilder { ...builderProps } /> }
       { output.show      && <Output /> }
@@ -202,9 +229,11 @@ const renderBuilder = (parts, uiConfig) => {
 export function PromptBuilder() {
   const dispatch = useAppDispatch()
   const parts = useAppSelector((state) => state.promptBuilder.parts)
+  const { promptId } = useParams()
   return renderBuilder(parts, {
     fetchPrompt: {
-      show: true
+      show: true,
+      preview: true
     },
     settings: {
       show: false

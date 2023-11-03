@@ -19,6 +19,7 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="builder" element={<PromptBuilder />} />
+            <Route path="builder/prompt/:promptId" element={<PromptBuilder />} />
             <Route path="gallery" element={<Gallery />} />
             <Route path="*" element={<NoPage />} />
           </Route>

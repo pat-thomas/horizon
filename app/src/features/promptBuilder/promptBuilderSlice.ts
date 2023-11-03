@@ -3,8 +3,17 @@ import { RootState, AppThunk } from "../../app/store"
 import { PromptPart } from "../../app/types"
 import axios from 'axios'
 
+type Prompt = [PromptPart]
+
+interface LoadedPrompt extends Prompt {
+  id: string,
+  loading: false,
+  error: ''
+}
+
 export interface PromptBuilderState {
-  parts: [PromptPart]
+  parts: Prompt,
+  loadedPrompts: [LoadedPrompt]
 }
 
 const initialState: PromptBuilderState = {
@@ -23,8 +32,19 @@ const initialState: PromptBuilderState = {
     weightDifference: 0.25,
     style: 250,
     chaos: 0
-  }
+  },
+  loadedPrompts: [
+    {id: 'sample'}
+  ]
 }
+
+export const getPromptById = createAsyncThunk(
+  'prompt/getPromptById',
+  async (promptId: string, thunkAPI) => {
+    const response = await axios.get(`http://localhost:5173/api/prompts/${promptId}`)
+    return { ...response.data , id: promptId }
+  }
+)
 
 export const promptBuilderSlice = createSlice({
   name: "promptBuilder",
@@ -83,23 +103,37 @@ export const promptBuilderSlice = createSlice({
       const part = state.parts[index]
       state.parts[index].weight -= weightDifference
     },
-    loadPrompt: (state, action) => {
-      const promptId = action.payload
-      //const path = `http://127.0.0.1:5000/prompt/${promptId}`
-      const path = `/api/prompt/${promptId}`
-      console.log(`about to fetch prompt at path ${path}`)
-      axios.get(path)
-        .then(response => {
-          data = response.data
-          // todo verify shape of response before storing in memory
-          state.loadedPrompt = response.data
-        })
-        .catch(error => {
-          console.log('found an error')
-          console.error(error)
-        })
-    },
+    //loadPrompt: (state, action) => {
+    //  return function(dispatch) => {
+    //    const promptId = action.payload
+    //    console.log('loadPrompt. promptId:', promptId)
+    //    const path = `/api/prompt/${promptId}`
+    //    axios.get(path)
+    //      .then(response => {
+    //        console.log(response)
+    //        dispatch({
+    //          type: '...',
+    //          payload: response.data
+    //        })
+    //      })
+    //  }
+    //}
   },
+  extraReducers: (builder) => {
+    builder.addCase(getPromptById.pending, (state) => {
+      console.log('loading')
+      return state
+      // state.loading = true
+    })
+    builder.addCase(getPromptById.fulfilled, (state, action) => {
+      // state.loading = false
+      state.loadedPrompts = [...state.loadedPrompts , action.payload]
+    })
+    builder.addCase(getPromptById.rejected, (state, action) => {
+      // state.loading = false
+      console.error('error fetching prompt from server')
+    })
+  }
 })
 
 export const {
