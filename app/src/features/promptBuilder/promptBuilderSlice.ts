@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { RootState, AppThunk } from "../../app/store"
-import { PromptPart } from "../../app/types";
+import { PromptPart } from "../../app/types"
+import axios from 'axios'
 
 export interface PromptBuilderState {
   parts: [PromptPart]
@@ -81,7 +82,22 @@ export const promptBuilderSlice = createSlice({
       const index = action.payload.index
       const part = state.parts[index]
       state.parts[index].weight -= weightDifference
-    }
+    },
+    loadPrompt: (state, action) => {
+      const promptId = action.payload
+      //const path = `http://127.0.0.1:5000/prompt/${promptId}`
+      const path = `/prompt/${promptId}`
+      console.log(`about to fetch prompt at path ${path}`)
+      axios.get(path)
+        .then(response => {
+          console.log('got a repsonse')
+          console.log(response)
+        })
+        .catch(error => {
+          console.log('found an error')
+          console.error(error)
+        })
+    },
   },
 })
 
@@ -93,7 +109,8 @@ export const {
   decrementPartWeight,
   updateSettingWeightDifference,
   updateSettingStyle,
-  updateSettingChaos
+  updateSettingChaos,
+  loadPrompt
 } = promptBuilderSlice.actions
 
 export default promptBuilderSlice.reducer

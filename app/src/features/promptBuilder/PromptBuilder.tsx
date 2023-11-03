@@ -7,13 +7,15 @@ import {
   decrementPartWeight,
   updateSettingWeightDifference,
   updateSettingStyle,
-  updateSettingChaos
+  updateSettingChaos,
+  loadPrompt
 } from "./promptBuilderSlice"
 import styles from "./PromptBuilder.module.css"
 import Button from "react-bootstrap/Button"
 import Badge from "react-bootstrap/Badge"
 import Stack from "react-bootstrap/Stack"
 import Form from "react-bootstrap/Form"
+import { useState } from 'react'
 
 const rgbStr = ({r, g, b}) => {
   return `rgb(${r}, ${g}, ${b})`
@@ -137,11 +139,16 @@ const Settings = () => {
 
 const FetchPrompt = () => {
   const dispatch = useAppDispatch()
+  const [idInputState, setIdInputState] = useState('');
   //const loadedPrompts = useAppSelector((state) => state.promptBuilder.loadedPrompts)
   return (
-    <div>
-      <p>the thing to fetch the prompt from the server will go here</p>
-    </div>
+    <Form>
+      <Form.Group className="mb-3" controlId="Prompt.Id">
+        <Form.Label>Enter prompt ID</Form.Label>
+        <Form.Control type="text" onChange={(e) => setIdInputState(e.target.value)} value={idInputState} />
+        <Button onClick={() => dispatch(loadPrompt(idInputState))}>Load prompt</Button>
+      </Form.Group>
+    </Form>
   )
 }
 
@@ -177,15 +184,17 @@ const renderBuilder = (parts, uiConfig) => {
     settings,
     fetchPrompt,
     partBuilder,
+    output,
     copyPrompt
   } = uiConfig;
   const builderProps = { parts: parts };
   return (
     <div>
       { fetchPrompt.show && <FetchPrompt /> }
-      { settings.show && <Settings /> }
+      { settings.show    && <Settings /> }
       { partBuilder.show && <PartBuilder { ...builderProps } /> }
-      { copyPrompt.show && <CopyPrompt /> }
+      { output.show      && <Output /> }
+      { copyPrompt.show  && <CopyPrompt /> }
     </div>
   )
 }
@@ -201,10 +210,13 @@ export function PromptBuilder() {
       show: false
     },
     partBuilder: {
+      show: false
+    },
+    output: {
       show: true
     },
     copyPrompt: {
-      show: true
+      show: false
     }
   })
 }
