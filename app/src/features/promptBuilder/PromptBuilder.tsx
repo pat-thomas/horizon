@@ -48,7 +48,7 @@ const PromptPart = (props) => {
   }
 
   return (
-    <div style={{'background-color': divBackgroundColorStr, 'color': 'white'}} key={index}>
+    <div style={{'backgroundColor': divBackgroundColorStr, 'color': 'white'}} key={index}>
       <Form>
         <Form.Group>
           <Form.Label>Enter/modify prompt part</Form.Label>
@@ -59,7 +59,7 @@ const PromptPart = (props) => {
       <Button onClick={() => runDispatch(decrementPartWeight)}>- weight ({settings.weightDifference})</Button>
       <Button onClick={() => runDispatch(removePart)}>- part</Button>
       <Button onClick={() => copyPromptPart(part.text) }>Copy part to clipboard</Button>
-      <p style={{'background-color': previewBackgroundColorStr}}>{part.text}::{part.weight}</p>
+      <p style={{'backgroundColor': previewBackgroundColorStr}}>{part.text}::{part.weight}</p>
     </div>
   )
 }
@@ -79,7 +79,7 @@ const Output = () => {
   const baseBackgroundColorStr = rgbStr(backgroundColorRgbBase)
   return (
     <div id="Output">
-      <div style={{'background-color': 'rgb(50, 50, 50)', 'border': '3px solid grey'}}>/imagine&nbsp;</div>
+      <div style={{'backgroundColor': 'rgb(50, 50, 50)', 'border': '3px solid grey'}}>/imagine&nbsp;</div>
       <div id="OutputText">
         {parts.map((p, index) => {
           const {
@@ -96,7 +96,7 @@ const Output = () => {
             b: backgroundColorRgb.b + borderColorDiff
           })
           const styleProps = {
-            'background-color': previewBackgroundColorStr,
+            'backgroundColor': previewBackgroundColorStr,
             'borderColor': borderColorStr
           }
           return (
@@ -105,7 +105,7 @@ const Output = () => {
             </div>
           )
         })}
-        <div style={{'background-color': 'rgb(50, 50, 50)', 'border': '3px solid grey'}}>--s {settings.style} --c {settings.chaos}</div>
+        <div style={{'backgroundColor': 'rgb(50, 50, 50)', 'border': '3px solid grey'}}>--s {settings.style} --c {settings.chaos}</div>
       </div>
     </div>
   )
@@ -213,7 +213,7 @@ export function PromptBuilder() {
       show: false
     },
     output: {
-      show: true
+      show: false
     },
     copyPrompt: {
       show: false

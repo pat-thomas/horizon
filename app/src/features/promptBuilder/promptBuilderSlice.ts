@@ -86,12 +86,13 @@ export const promptBuilderSlice = createSlice({
     loadPrompt: (state, action) => {
       const promptId = action.payload
       //const path = `http://127.0.0.1:5000/prompt/${promptId}`
-      const path = `/prompt/${promptId}`
+      const path = `/api/prompt/${promptId}`
       console.log(`about to fetch prompt at path ${path}`)
       axios.get(path)
         .then(response => {
-          console.log('got a repsonse')
-          console.log(response)
+          data = response.data
+          // todo verify shape of response before storing in memory
+          state.loadedPrompt = response.data
         })
         .catch(error => {
           console.log('found an error')

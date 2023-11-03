@@ -7,11 +7,11 @@ app = Flask(__name__)
 def hello_world():
     return 'Hello from Flask'
 
-@app.get('/user/<username>')
+@app.get('/api/user/<username>')
 def get_user_profile(username):
     return f'{username}\'s profile'
 
-@app.get('/prompt/<prompt_id>')
+@app.get('/api/prompt/<prompt_id>')
 def get_prompt(prompt_id):
     prompt_data = datastore.db_get_prompt(prompt_id)
     if prompt_data: return prompt_data
