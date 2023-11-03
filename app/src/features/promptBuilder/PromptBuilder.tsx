@@ -144,6 +144,7 @@ const FetchPrompt = ({
 }) => {
   const dispatch = useAppDispatch()
   const [idInputState, setIdInputState] = useState('')
+  const [showMe, setShowMe] = useState(true)
   const loadedPrompts = useAppSelector((state) => state.promptBuilder.loadedPrompts)
   const activePrompt = useAppSelector((state) => state.promptBuilder.activePrompt)
   const handleGetPromptClick = () => {
@@ -152,38 +153,45 @@ const FetchPrompt = ({
   const handleSelect = (promptId) => {
     dispatch(useLoadedPromptToSetBuilder(promptId))
   }
-  return (
-    <div className={styles.FetchPrompt}>
-      {fetchForm &&
-        <Form>
-          <Form.Group className="mb-3" controlId="Prompt.Id">
-            <Form.Label>Enter prompt ID</Form.Label>
-            <Form.Control type="text" onChange={(e) => setIdInputState(e.target.value)} value={idInputState} />
-            <Button onClick={() => handleGetPromptClick()}>Load prompt</Button>
-          </Form.Group>
-        </Form>
-      }
-      <div>
-        {activePrompt &&
-          <p>Current active prompt: {activePrompt.id}</p>
+  if (!showMe) {
+    return (
+      <Button onClick={() => setShowMe(true)}>Show prompt loader</Button>
+    )
+  } else {
+    return (
+      <div className={styles.FetchPrompt}>
+        <Button onClick={() => setShowMe(false)}>Hide prompt loader</Button>
+        {fetchForm &&
+          <Form>
+            <Form.Group className="mb-3" controlId="Prompt.Id">
+              <Form.Label>Enter prompt ID</Form.Label>
+              <Form.Control type="text" onChange={(e) => setIdInputState(e.target.value)} value={idInputState} />
+              <Button onClick={() => handleGetPromptClick()}>Load prompt</Button>
+            </Form.Group>
+          </Form>
         }
-        {loadedPrompts.map((lp) => {
-          return (
-            <div className={styles.FetchPromptPreview}>
-              <Button onClick={() => handleSelect(lp.id)}>Select prompt to build ({lp.id})</Button>
-              <div className="FetchPromptParts">
-              {lp.parts && lp.parts.map((p, idx) => {
-                return (
-                  <p>&nbsp;&nbsp;&nbsp;{p.text} ::{p.weight}</p>
-                )
-              })}
+        <div>
+          {activePrompt &&
+            <p>Current active prompt: {activePrompt.id}</p>
+          }
+          {loadedPrompts.map((lp) => {
+            return (
+              <div className={styles.FetchPromptPreview}>
+                <Button onClick={() => handleSelect(lp.id)}>Select prompt to build ({lp.id})</Button>
+                <div className="FetchPromptParts">
+                {lp.parts && lp.parts.map((p, idx) => {
+                  return (
+                    <p>&nbsp;&nbsp;&nbsp;{p.text} ::{p.weight}</p>
+                  )
+                })}
+                </div>
               </div>
-            </div>
-          )
-        })}
+            )
+          })}
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 }
 
 const PartBuilder = ({parts}) => {
