@@ -1,0 +1,17 @@
+{
+  "parts": [
+    {
+      "text": "cheese to the fullest extent",
+      "weight": 1
+    },
+    {
+      "text": "a great migration",
+      "weight": 0.5
+    },
+    {
+      "text": "modern angular and flowing architecture , with tunnels and water features , spouts",
+      "weight": 0.75
+    }
+  ]
+}
+

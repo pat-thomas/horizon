@@ -177,7 +177,7 @@ const FetchPrompt = ({
           {loadedPrompts.map((lp) => {
             return (
               <div className={styles.FetchPromptPreview}>
-                <Button onClick={() => handleSelect(lp.id)}>Select prompt to build ({lp.id})</Button>
+                <Button onClick={() => handleSelect(lp.id)}>Build with ({lp.id})</Button>
                 <div className="FetchPromptParts">
                 {lp.parts && lp.parts.map((p, idx) => {
                   return (
@@ -196,15 +196,23 @@ const FetchPrompt = ({
 
 const PartBuilder = ({parts}) => {
   const dispatch = useAppDispatch()
-  return (
-    <div>
-      {parts.map((data, index) => {
-        const promptPartProps = { index: index }
-        return <PromptPart { ...promptPartProps } />
-      })}
-      <Button onClick={() => dispatch(addPart())}>+ part</Button>
-    </div>
-  )
+  const [showMe, setShowMe] = useState(true)
+  if (!showMe) {
+    return (
+      <Button onClick={() => setShowMe(true)}>Show Builder</Button>
+    )
+  } else {
+    return (
+      <div>
+        <Button onClick={() => setShowMe(false)}>Hide Builder</Button>
+        {parts.map((data, index) => {
+          const promptPartProps = { index: index }
+          return <PromptPart { ...promptPartProps } />
+        })}
+        <Button onClick={() => dispatch(addPart())}>+ part</Button>
+      </div>
+    )
+  }
 }
 
 const CopyPrompt = () => {
