@@ -140,11 +140,12 @@ const Settings = () => {
 
 const FetchPrompt = ({
   preview,
-  fetchForm
+  fetchForm,
+  collapse
 }) => {
   const dispatch = useAppDispatch()
   const [idInputState, setIdInputState] = useState('')
-  const [showMe, setShowMe] = useState(true)
+  const [showMe, setShowMe] = useState(collapse === false)
   const loadedPrompts = useAppSelector((state) => state.promptBuilder.loadedPrompts)
   const activePrompt = useAppSelector((state) => state.promptBuilder.activePrompt)
   const handleGetPromptClick = () => {
@@ -155,12 +156,12 @@ const FetchPrompt = ({
   }
   if (!showMe) {
     return (
-      <Button onClick={() => setShowMe(true)}>Show prompt loader</Button>
+      <Button className={styles.customBtn} onClick={() => setShowMe(true)}>Show prompt loader</Button>
     )
   } else {
     return (
       <div className={styles.FetchPrompt}>
-        <Button onClick={() => setShowMe(false)}>Hide prompt loader</Button>
+        <Button className={styles.customBtn} onClick={() => setShowMe(false)}>Hide prompt loader</Button>
         {fetchForm &&
           <Form>
             <Form.Group className="mb-3" controlId="Prompt.Id">
@@ -196,15 +197,15 @@ const FetchPrompt = ({
 
 const PartBuilder = ({parts}) => {
   const dispatch = useAppDispatch()
-  const [showMe, setShowMe] = useState(true)
+  const [showMe, setShowMe] = useState(false)
   if (!showMe) {
     return (
-      <Button onClick={() => setShowMe(true)}>Show Builder</Button>
+      <Button className={styles.customBtn} onClick={() => setShowMe(true)}>Show Builder</Button>
     )
   } else {
     return (
       <div>
-        <Button onClick={() => setShowMe(false)}>Hide Builder</Button>
+        <Button className={styles.customBtn} onClick={() => setShowMe(false)}>Hide Builder</Button>
         {parts.map((data, index) => {
           const promptPartProps = { index: index }
           return <PromptPart { ...promptPartProps } />
@@ -258,13 +259,15 @@ export function PromptBuilder() {
     fetchPrompt: {
       show: true,
       fetchForm: true,
-      preview: true
+      preview: true,
+      collapse: true
     },
     settings: {
       show: false
     },
     partBuilder: {
-      show: true
+      show: true,
+      collapse: true
     },
     output: {
       show: true

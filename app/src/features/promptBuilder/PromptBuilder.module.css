@@ -69,3 +69,13 @@
   border-width: 2px;
   border-radius: 5px;
 }
+
+.customBtn {
+  background-color: blueviolet !important;
+  border: #fff !important;
+}
+
+.customBtn:hover {
+  background-color: #4dd !important;
+  border: #fff !important;
+}

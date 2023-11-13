@@ -1,0 +1,18 @@
+{
+  "parts": [
+    {
+      "text": "a psychedelic galaxy, in the style of an abstract painting, colorful, vibrant",
+      "weight": 1
+    },
+    {
+      "text": "slightly blurry distressed faded impressionistic pastel painting of a french bistro on a collaged background",
+      "weight": 0.6
+    },
+    {
+      "text": "the plastic eyeballs, in the style of Wes Anderson and David Carson",
+      "weight": 0.5
+    }
+  ]
+}
+
+

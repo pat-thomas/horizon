@@ -1,0 +1,17 @@
+{
+  "parts": [
+    {
+      "text": "2d , minimal",
+      "weight": 0.5
+    },
+    {
+      "text": "city skyline , unique architecture",
+      "weight": 0.25
+    },
+    {
+      "text": "several tall people walking down the street , having a spirited conversation",
+      "weight": 0.75
+    }
+  ]
+}
+

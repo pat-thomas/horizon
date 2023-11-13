@@ -26,12 +26,26 @@ export const defaultRgb = {
   b: 120
 }
 
+const colors = (n) => {
+  let colorsArr = [defaultRgb]
+  for (var i = 0; i < n; i++) {
+    const prevColor = colorsArr[colorsArr.length-1]
+    colorsArr.push(nextColor(prevColor))
+  }
+  return colorsArr
+};
+
 const samplePrompt1 = {
   parts: [
     {
-      text: 'face , minimal',
+      text: 'face , minimal , visual style of Joan Miro and Salvador Dali',
       weight: 1,
       backgroundColor: defaultRgb
+    },
+    {
+      text: 'flower , stylized , pixelated',
+      weight: 1,
+      backgroundColor: nextColor(defaultRgb)
     }
   ]
 }
