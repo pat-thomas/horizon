@@ -19,5 +19,17 @@ def get_prompt(prompt_id):
         "message": "prompt not found"
     }, 404)
 
+@app.get('/api/prompts')
+def list_prompts():
+    prompt_list = datastore.db_list_prompts()
+    print("here is the prompt list")
+    print(prompt_list)
+    if prompt_list: return({
+        "prompt_ids": prompt_list
+    })
+    return({
+        "message": "prompts not found"
+    }, 404)
+
 if __name__ == '__main__':
     app.run()
