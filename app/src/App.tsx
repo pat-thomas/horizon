@@ -1,6 +1,7 @@
 import logo from "./logo.svg"
 import { Counter } from "./features/counter/Counter"
 import { PromptBuilder } from "./features/promptBuilder/PromptBuilder"
+import { PromptGallery } from "./features/promptGallery/PromptGallery"
 import "./App.css"
 import { store } from "./app/store";
 import { Provider } from 'react-redux';
@@ -20,7 +21,7 @@ function App() {
             <Route index element={<Home />} />
             <Route path="builder" element={<PromptBuilder />} />
             <Route path="builder/prompt/:promptId" element={<PromptBuilder />} />
-            <Route path="gallery" element={<Gallery />} />
+            <Route path="gallery" element={<PromptGallery />} />
             <Route path="*" element={<NoPage />} />
           </Route>
         </Routes>
