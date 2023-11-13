@@ -4,12 +4,19 @@ import Button from "react-bootstrap/Button"
 import {
   getPromptList
 } from "./promptGallerySlice"
+import { Route , Navigate } from "react-router-dom"
 
 const RichPrompt = ({
   promptId
 }) => {
   const [showMe, setShowMe] = useState(false)
-  if (!showMe) {
+  const [navigateToBuilder, setNavigateToBuilder] = useState(false)
+  if (navigateToBuilder === true) {
+    const path = "/builder/prompt/" + promptId
+    return (
+      <Navigate to={path} />
+    )
+  } else if (!showMe) {
     return (
       <Button onClick={() => setShowMe(true)}>Show ({promptId})</Button>
     )
@@ -19,6 +26,7 @@ const RichPrompt = ({
         <Button onClick={() => setShowMe(false)}>Hide</Button>
         <p>ID: {promptId}</p>
         <p>The rich prompt data for prompt {promptId} will go here</p>
+        <Button onClick={() => setNavigateToBuilder(true)}>Use in Builder</Button>
       </div>
     )
   }
