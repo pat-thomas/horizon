@@ -2,15 +2,34 @@ import { useAppSelector, useAppDispatch } from "../../app/hooks"
 import { useState , useEffect } from 'react'
 import Button from "react-bootstrap/Button"
 import {
-  getPromptList
+  getPromptList,
+  getPromptById
 } from "./promptGallerySlice"
 import { Route , Navigate } from "react-router-dom"
+
+const defaultPageTitle = 'Prompt Gallery'
 
 const RichPrompt = ({
   promptId
 }) => {
   const [showMe, setShowMe] = useState(false)
   const [navigateToBuilder, setNavigateToBuilder] = useState(false)
+  const dispatch = useAppDispatch()
+  const richPromptData = useAppSelector((state) => state.promptGallery.gallery.richPromptsById[promptId])
+
+  const showAndLoadPrompt = () => {
+    setShowMe(true)
+    dispatch(getPromptById(promptId))
+  }
+
+  useEffect(() => {
+    if (showMe) {
+      document.title = `Prompt: ${promptId}`
+    } else {
+      document.title = defaultPageTitle
+    }
+  })
+
   if (navigateToBuilder === true) {
     const path = "/builder/prompt/" + promptId
     return (
@@ -18,14 +37,29 @@ const RichPrompt = ({
     )
   } else if (!showMe) {
     return (
-      <Button onClick={() => setShowMe(true)}>Show ({promptId})</Button>
+      <Button onClick={() => showAndLoadPrompt()}>Show ({promptId})</Button>
     )
   } else {
     return (
-      <div>
+      <div key={`RichPrompt.${promptId}`}>
         <Button onClick={() => setShowMe(false)}>Hide</Button>
         <p>ID: {promptId}</p>
-        <p>The rich prompt data for prompt {promptId} will go here</p>
+        <div>
+          <div>
+            {richPromptData && richPromptData.parts && richPromptData.parts.map(({text, weight}) => {
+              return (
+                <p>{text} ::{weight}</p>
+              )
+            })}
+          </div>
+          <div>
+            {richPromptData && richPromptData.examples && richPromptData.examples.map((ex) => {
+              return (
+                <img src={ex}></img>
+              )
+            })}
+          </div>
+        </div>
         <Button onClick={() => setNavigateToBuilder(true)}>Use in Builder</Button>
       </div>
     )
@@ -69,6 +103,9 @@ const ListHydrator = ({
 }
 
 export function PromptGallery() {
+  useEffect(() => {
+    document.title = defaultPageTitle
+  })
   const dispatch = useAppDispatch()
   const {
     loadedData,

@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { RootState, AppThunk } from "../../app/store"
 import { PromptPart } from "../../app/types"
-import axios from 'axios'
+import { httpGetPromptById } from "../../apiClient"
 
 interface LoadedPrompt extends Prompt {
   id: string
@@ -80,12 +80,7 @@ const initialState: PromptBuilderState = {
 
 export const getPromptById = createAsyncThunk(
   'prompt/getPromptById',
-  async (promptId: string, thunkAPI) => {
-    const path = `http://localhost:5173/api/prompts/${promptId}`
-    console.log('about to call path', path)
-    const response = await axios.get(path)
-    return { ...response.data , id: promptId }
-  }
+  httpGetPromptById
 )
 
 export const promptBuilderSlice = createSlice({
