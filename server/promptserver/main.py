@@ -1,5 +1,6 @@
 from flask import Flask
 import datastore
+import api_client
 #from datastore import get_prompt, add_prompt, update_prompt
 app = Flask(__name__)
 
@@ -22,14 +23,22 @@ def get_prompt(prompt_id):
 @app.get('/api/prompts')
 def list_prompts():
     prompt_list = datastore.db_list_prompts()
-    print("here is the prompt list")
-    print(prompt_list)
     if prompt_list: return({
         "prompt_ids": prompt_list
     })
     return({
         "message": "prompts not found"
     }, 404)
+
+@app.get('/api/data/random/<data_type>')
+def get_random_data(data_type):
+    random_data = api_client.get_random_data(data_type)
+    if random_data: return({
+        "data": random_data
+    })
+    return({
+        "message": f"invalid data type {data_type} requested"
+    }, 400)
 
 if __name__ == '__main__':
     app.run()
