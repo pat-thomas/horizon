@@ -1,7 +1,8 @@
 from flask import Flask
 import datastore
 import api_client
-#from datastore import get_prompt, add_prompt, update_prompt
+import random
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -39,6 +40,38 @@ def get_random_data(data_type):
     return({
         "message": f"invalid data type {data_type} requested"
     }, 400)
+
+
+def make_prompt_from_random_data(data_type, data):
+    if data_type == "beers":
+        print(data)
+        brands = list(map(lambda d: d["brand"], data))
+        random_brand = random.choice(brands)
+        styles = list(map(lambda d: d["style"], data))
+        random_style = random.choice(styles)
+        names = list(map(lambda d: d["name"], data))
+        random_name = random.choice(names)
+        return {
+            "prompt": f"a glass of {random_brand} beer , {random_style} style beer , beer with name '{random_name}' on label"
+        }
+    elif data_type == "users":
+        print("users!!!")
+    else:
+        print("no match.")
+        return data
+
+@app.get('/api/data/random/<data_type>/prompt')
+def get_random_prompt(data_type):
+    random_data = api_client.get_random_data(data_type)
+    if random_data:
+        prompt_data = make_prompt_from_random_data(data_type, random_data)
+        return({
+            "prompt_data": prompt_data
+        })
+    return({
+        "message": f"invalid data type {data_type} requested"
+    }, 400)
+    return
 
 if __name__ == '__main__':
     app.run()

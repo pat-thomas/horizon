@@ -9,6 +9,7 @@ import {
   updateSettingStyle,
   updateSettingChaos,
   getPromptById,
+  getRandomPrompt,
   useLoadedPromptToSetBuilder,
   defaultRgb
 } from "./promptBuilderSlice"
@@ -28,9 +29,32 @@ const copyPromptPart = (text) => {
   navigator.clipboard.writeText(text)
 }
 
+const RandomPromptGenerator = ({
+  index
+}) => {
+  const dispatch = useAppDispatch()
+  const [dataTypeInput, setDataTypeInput] = useState('beers')
+  const loadRandomPrompt = () => {
+    console.log('loadRandomPrompt')
+    console.log(dataTypeInput)
+    return getRandomPrompt(dataTypeInput, index)
+  }
+  return (
+    <div>
+      <Form>
+        <Form.Group>
+          <Form.Label>Enter data type</Form.Label>
+          <Form.Control type="text" onChange={(e) => setDataTypeInput(e.target.value)} value={dataTypeInput} />
+        </Form.Group>
+      </Form>
+      <Button onClick={() => dispatch(loadRandomPrompt())}>Replace with random prompt</Button>
+    </div>
+  )
+}
+
 const PromptPart = (props) => {
   const dispatch = useAppDispatch()
-  const index = props.index;
+  const index = props.index
   const {
     part,
     settings
@@ -40,21 +64,19 @@ const PromptPart = (props) => {
       settings: state.promptBuilder.settings
     }
   });
-  const dispatchData = {index: index};
-  let prevColor;
+  const dispatchData = {index: index}
+  let prevColor
   if (index >= 1 && part[index-1] && part[index-1].backgroundColor) {
     prevColor = part[index-1].backgroundColor
   }
-  let backgroundColorRgb;
+  let backgroundColorRgb
   if (prevColor) {
     backgroundColorRgb = nextColor(prevColor)
   } else {
     backgroundColorRgb = part.backgroundColor || defaultRgb
   }
 
-  console.log('backgroundColorRgb', backgroundColorRgb)
-
-  const backgroundColorDiff = 5;
+  const backgroundColorDiff = 5
   const {r, g, b} = backgroundColorRgb
   const divBackgroundColorStr = rgbStr({r: r - backgroundColorDiff, g: g - backgroundColorDiff, b: b - backgroundColorDiff})
   const previewBackgroundColorStr = rgbStr(backgroundColorRgb)
@@ -74,6 +96,7 @@ const PromptPart = (props) => {
       <Button onClick={() => runDispatch(decrementPartWeight)}>- weight ({settings.weightDifference})</Button>
       <Button onClick={() => runDispatch(removePart)}>- part</Button>
       <Button onClick={() => copyPromptPart(part.text) }>Copy part to clipboard</Button>
+      <RandomPromptGenerator { ...props } />
       <p style={{'backgroundColor': previewBackgroundColorStr}}>{part.text} ::{part.weight}</p>
     </div>
   )

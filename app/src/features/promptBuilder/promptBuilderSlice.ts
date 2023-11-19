@@ -1,7 +1,10 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { RootState, AppThunk } from "../../app/store"
 import { PromptPart } from "../../app/types"
-import { httpGetPromptById } from "../../apiClient"
+import {
+  httpGetPromptById ,
+  httpGetRandomPrompt
+} from "../../apiClient"
 
 interface LoadedPrompt extends Prompt {
   id: string
@@ -81,6 +84,11 @@ const initialState: PromptBuilderState = {
 export const getPromptById = createAsyncThunk(
   'prompt/getPromptById',
   httpGetPromptById
+)
+
+export const getRandomPrompt = createAsyncThunk(
+  'prompt/getRandomPrompt',
+  httpGetRandomPrompt
 )
 
 export const promptBuilderSlice = createSlice({
@@ -170,6 +178,26 @@ export const promptBuilderSlice = createSlice({
     builder.addCase(getPromptById.rejected, (state, action) => {
       // state.loading = false
       console.error('error fetching prompt from server')
+    })
+
+    builder.addCase(getRandomPrompt.pending, (state) => {
+      console.log('PENDING getRandomPrompt')
+      return state
+    })
+    builder.addCase(getRandomPrompt.fulfilled, (state, action) => {
+      const {
+        promptIndex,
+        data
+      } = action.payload
+      console.log(promptIndex)
+      const randomPrompt = data.prompt_data.prompt
+      console.log(state.activePrompt.parts[promptIndex].text)
+      state.activePrompt.parts[promptIndex].text = randomPrompt
+      return state
+    })
+    builder.addCase(getRandomPrompt.rejected, (state, action) => {
+      console.error('error generating prompt')
+      return state
     })
   }
 })
