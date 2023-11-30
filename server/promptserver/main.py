@@ -13,6 +13,14 @@ def hello_world():
 def get_user_profile(username):
     return f'{username}\'s profile'
 
+@app.get('/api/tours/<tour_id>')
+def get_tour(tour_id):
+    tour_data = datastore.db_get_tour(tour_id)
+    if tour_data: return tour_data
+    return({
+        "message": "tour not found"
+    }, 404)
+
 @app.get('/api/prompts/<prompt_id>')
 def get_prompt(prompt_id):
     prompt_data = datastore.db_get_prompt(prompt_id)

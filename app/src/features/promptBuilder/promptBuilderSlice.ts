@@ -38,6 +38,16 @@ const colors = (n) => {
   return colorsArr
 };
 
+const samplePrompt0 = {
+  parts: [
+    {
+      text: 'darth vader made of swiss cheese , melting',
+      weight: 1,
+      backgroundColor: defaultRgb
+    }
+  ]
+}
+
 const samplePrompt1 = {
   parts: [
     {
@@ -69,15 +79,16 @@ const samplePrompt2 = {
 }
 
 const initialState: PromptBuilderState = {
-  activePrompt: samplePrompt1,
+  activePrompt: samplePrompt0,
   settings: {
     weightDifference: 0.25,
     style: 250,
     chaos: 0
   },
   loadedPrompts: [
-    { ...samplePrompt1, id: 'sample1' },
-    { ...samplePrompt2, id: 'sample2' }
+    { ...samplePrompt0, id: 'sample0' },
+    //{ ...samplePrompt1, id: 'sample1' },
+    //{ ...samplePrompt2, id: 'sample2' }
   ]
 }
 

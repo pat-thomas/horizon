@@ -18,6 +18,7 @@ import Button from "react-bootstrap/Button"
 import Badge from "react-bootstrap/Badge"
 import Stack from "react-bootstrap/Stack"
 import Form from "react-bootstrap/Form"
+import Dropdown from "react-bootstrap/Dropdown"
 import { useState , useEffect } from 'react'
 import { useParams } from "react-router-dom"
 
@@ -29,27 +30,71 @@ const copyPromptPart = (text) => {
   navigator.clipboard.writeText(text)
 }
 
+const promptPartTypeInternal = {
+  "plaintext": "Plaintext",
+  "randomdata.beer": "Random Beer (Random Data API)",
+  "randomdata.user": "Random User (Random Data API)"
+}
+
+const FriendlyDropdownType = ({
+  eventKey
+}) => {
+  return <Dropdown.Item eventKey={eventKey}>{promptPartTypeInternal[eventKey]}</Dropdown.Item>
+}
+
 const RandomPromptGenerator = ({
   index
 }) => {
   const dispatch = useAppDispatch()
   const [dataTypeInput, setDataTypeInput] = useState('beers')
-  const loadRandomPrompt = () => {
-    console.log('loadRandomPrompt')
-    console.log(dataTypeInput)
-    return getRandomPrompt(dataTypeInput, index)
+  const [partTypeSelection, setPartTypeSelection] = useState('Plaintext')
+
+  const loadRandomPrompt = () => getRandomPrompt(dataTypeInput, index)
+
+  const handleDropdownChange = (evt) => {
+    const recognizedType = promptPartTypeInternal[evt]
+    if (!recognizedType) {
+      console.log(`unrecognized type ${evt}`)
+    } else {
+      setPartTypeSelection(recognizedType)
+    }
   }
+
   return (
     <div>
-      <Form>
-        <Form.Group>
-          <Form.Label>Enter data type</Form.Label>
-          <Form.Control type="text" onChange={(e) => setDataTypeInput(e.target.value)} value={dataTypeInput} />
-        </Form.Group>
-      </Form>
-      <Button onClick={() => dispatch(loadRandomPrompt())}>Replace with random prompt</Button>
+      <p>Type: {partTypeSelection}</p>
+      <Dropdown onSelect={handleDropdownChange}>
+        <Dropdown.Toggle variant="success" id="dropdown-basic">
+          Select prompt part type
+        </Dropdown.Toggle>
+
+        <Dropdown.Menu>
+          <FriendlyDropdownType eventKey="plaintext" />
+          <FriendlyDropdownType eventKey="randomdata.beer" />
+          <FriendlyDropdownType eventKey="randomdata.user" />
+        </Dropdown.Menu>
+      </Dropdown>
     </div>
   )
+}
+
+const AdvancedPartSettings = ({
+  index
+}) => {
+  const dispatch = useAppDispatch()
+  //const [dataTypeInput, setDataTypeInput] = useState('beers')
+  const [showMe, setShowMe] = useState(false)
+
+  if (!showMe) {
+    return <div> <Button onClick={() => setShowMe(true)}>Advanced Settings</Button> </div>
+  } else {
+    return (
+      <div>
+        <Button onClick={() => setShowMe(false)}>Hide Advanced Settings</Button>
+        <RandomPromptGenerator index={index} />
+      </div>
+    )
+  }
 }
 
 const PromptPart = (props) => {
@@ -92,12 +137,14 @@ const PromptPart = (props) => {
           <Form.Control type="text" onChange={(e) => dispatch(updatePartText({text: e.target.value, index: index}))} value={part.text} />
         </Form.Group>
       </Form>
-      <Button onClick={() => runDispatch(incrementPartWeight)}>+ weight ({settings.weightDifference})</Button>
-      <Button onClick={() => runDispatch(decrementPartWeight)}>- weight ({settings.weightDifference})</Button>
-      <Button onClick={() => runDispatch(removePart)}>- part</Button>
+      <div>
+        <label>Adjust weight ({settings.weightDifference}) &nbsp;</label>
+        <Button onClick={() => runDispatch(incrementPartWeight)}>+</Button>
+        <Button onClick={() => runDispatch(decrementPartWeight)}>-</Button>
+      </div>
+      <Button onClick={() => runDispatch(removePart)}>Delete part</Button>
       <Button onClick={() => copyPromptPart(part.text) }>Copy part to clipboard</Button>
-      <RandomPromptGenerator { ...props } />
-      <p style={{'backgroundColor': previewBackgroundColorStr}}>{part.text} ::{part.weight}</p>
+      <AdvancedPartSettings { ...props } />
     </div>
   )
 }
@@ -218,25 +265,24 @@ const FetchPrompt = ({
   }
 }
 
+const Parts = ({parts}) => {
+  return <div> {parts.map((data, index) => <PromptPart index={index} /> )} </div>
+}
+
+const PartTool = () => {
+}
+
 const PartBuilder = ({parts}) => {
   const dispatch = useAppDispatch()
-  const [showMe, setShowMe] = useState(false)
-  if (!showMe) {
-    return (
-      <Button className={styles.customBtn} onClick={() => setShowMe(true)}>Show Builder</Button>
-    )
-  } else {
-    return (
+
+  return (
+    <div>
+      <Parts parts={parts} />
       <div>
-        <Button className={styles.customBtn} onClick={() => setShowMe(false)}>Hide Builder</Button>
-        {parts.map((data, index) => {
-          const promptPartProps = { index: index }
-          return <PromptPart { ...promptPartProps } />
-        })}
-        <Button onClick={() => dispatch(addPart())}>+ part</Button>
+        <Button onClick={() => dispatch(addPart())}>Add part</Button>
       </div>
-    )
-  }
+    </div>
+  )
 }
 
 const CopyPrompt = () => {
@@ -280,7 +326,7 @@ export function PromptBuilder() {
   const { promptId } = useParams()
   return renderBuilder(parts, {
     fetchPrompt: {
-      show: true,
+      show: false,
       fetchForm: true,
       preview: true,
       collapse: true

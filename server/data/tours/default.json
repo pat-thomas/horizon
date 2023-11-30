@@ -1,0 +1,60 @@
+{
+  "settings": {
+    "show_prompt": true,
+    "show_caption": true
+  },
+  "rooms": {
+    "_start": {
+      "src": "https://cdn.midjourney.com/ba80ee5a-6cad-4549-b418-7f2b2478a844/0_3.png",
+      "forward": "landscape",
+      "caption": "Welcome to the tour! Click one of the arrows to get started."
+    },
+
+    "landscape": {
+      "src": "https://cdn.midjourney.com/72b0bc5c-b560-47b2-8b03-7328b1fcd8ff/0_1.png",
+      "caption": "Careful not to fall in the river.",
+      "forward": "trees",
+      "backward": "_start",
+      "left": "zoo_entrance",
+      "right": "",
+      "zoom": {
+        "in": "",
+        "out": ""
+      },
+      "prompt": {
+        "id": "",
+        "text": "a peaceful landscape ::1 minimal 2d vector art ::0.5"
+      }
+    },
+
+    "zoo_entrance": {
+      "src": "https://cdn.midjourney.com/4cf86344-ec64-4b8b-960f-080ce104a258/0_0.png",
+      "caption": "Explore to see the plants and animals.",
+      "backward": "landscape",
+      "forward": "trees",
+      "left": "zoo_animals_1",
+      "right": "zoo_animals_2"
+    },
+    "zoo_animals_1": {
+      "src": "https://cdn.midjourney.com/4968b5bd-94b4-4746-8c77-09c0c147dd0f/0_2.png",
+      "backward": "zoo_entrance",
+      "right": "zoo_animals_2"
+    },
+    "zoo_animals_2": {
+      "src": "https://cdn.midjourney.com/9bb18e61-9fc6-4352-b926-2d2fbe911e60/0_2.png",
+      "backward": "zoo_entrance",
+      "left": "zoo_animals_1"
+    },
+
+    "trees": {
+      "src": "https://cdn.midjourney.com/21baa0c1-87df-4279-a43f-37ad3aff53b1/0_0.png",
+      "backward": "zoo_entrance",
+      "forward": "_end"
+    },
+
+    "_end": {
+      "backward": "trees",
+      "src": "https://cdn.midjourney.com/bac833ce-e649-4ea9-92f4-b903fe70d073/0_1.png"
+    }
+  }
+}

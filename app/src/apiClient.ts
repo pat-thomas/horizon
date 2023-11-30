@@ -24,3 +24,8 @@ export const httpGetRandomPrompt = async (dataType: string, promptIndex, thunkAP
   const response = await axios.get(apiPath(`data/random/${dataType}/prompt`))
   return { data: response.data , dataType: dataType , promptIndex: promptIndex }
 }
+
+export const httpGetTourById = async (tourId: string, thunkAPI) => {
+  const response = await axios.get(apiPath(`tours/${tourId}`))
+  return { ...response.data , id: tourId }
+}
