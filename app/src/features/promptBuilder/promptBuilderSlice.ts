@@ -196,11 +196,13 @@ export const promptBuilderSlice = createSlice({
       return state
     })
     builder.addCase(getRandomPrompt.fulfilled, (state, action) => {
+      console.log('getRandomPrompt.fulfilled')
       const {
         promptIndex,
         data
       } = action.payload
-      console.log(promptIndex)
+      console.log('promptIndex', promptIndex)
+      console.log('data', data)
       const randomPrompt = data.prompt_data.prompt
       console.log(state.activePrompt.parts[promptIndex].text)
       state.activePrompt.parts[promptIndex].text = randomPrompt

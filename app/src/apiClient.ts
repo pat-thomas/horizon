@@ -20,7 +20,11 @@ export const httpGetRandomData = async (dataType: string, thunkAPI) => {
   return { data: response.data , dataType: dataType }
 }
 
-export const httpGetRandomPrompt = async (dataType: string, promptIndex, thunkAPI) => {
+export const httpGetRandomPrompt = async ({
+    dataType,
+    promptIndex
+  }, thunkAPI) => {
+  console.log('httpGetRandomPrompt')
   const response = await axios.get(apiPath(`data/random/${dataType}/prompt`))
   return { data: response.data , dataType: dataType , promptIndex: promptIndex }
 }

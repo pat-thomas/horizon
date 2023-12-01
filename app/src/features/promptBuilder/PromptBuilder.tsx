@@ -14,11 +14,13 @@ import {
   defaultRgb
 } from "./promptBuilderSlice"
 import styles from "./PromptBuilder.module.css"
+
 import Button from "react-bootstrap/Button"
 import Badge from "react-bootstrap/Badge"
 import Stack from "react-bootstrap/Stack"
 import Form from "react-bootstrap/Form"
 import Dropdown from "react-bootstrap/Dropdown"
+
 import { useState , useEffect } from 'react'
 import { useParams } from "react-router-dom"
 
@@ -32,7 +34,7 @@ const copyPromptPart = (text) => {
 
 const promptPartTypeInternal = {
   "plaintext": "Plaintext",
-  "randomdata.beer": "Random Beer (Random Data API)",
+  "randomdata.beers": "Random Beer (Random Data API)",
   "randomdata.user": "Random User (Random Data API)"
 }
 
@@ -42,27 +44,60 @@ const FriendlyDropdownType = ({
   return <Dropdown.Item eventKey={eventKey}>{promptPartTypeInternal[eventKey]}</Dropdown.Item>
 }
 
-const RandomPromptGenerator = ({
+const AdvancedButtons = ({
+  promptPartType,
+  index
+}) => {
+  const dispatch = useAppDispatch()
+  console.log('promptPartType', promptPartType)
+  const handleClickLoadRandomData = () => {
+  }
+  const dataTypeForApi = () => {
+    return promptPartType.split("randomdata.")[1]
+  }
+
+  const loadRandomPrompt = () => {
+    dispatch(getRandomPrompt({
+      dataType: dataTypeForApi(),
+      promptIndex: index
+    }))
+  }
+
+  if (promptPartType.startsWith("randomdata.")) {
+    return (
+      <div>
+        <Button onClick={loadRandomPrompt}>Generate Random Prompt Part ({dataTypeForApi()})</Button>
+      </div>
+    )
+  } else {
+    return <></>
+  }
+}
+
+const AdvancedPromptPartGenerator = ({
   index
 }) => {
   const dispatch = useAppDispatch()
   const [dataTypeInput, setDataTypeInput] = useState('beers')
-  const [partTypeSelection, setPartTypeSelection] = useState('Plaintext')
-
-  const loadRandomPrompt = () => getRandomPrompt(dataTypeInput, index)
+  const [partTypeSelection, setPartTypeSelection] = useState('plaintext')
 
   const handleDropdownChange = (evt) => {
     const recognizedType = promptPartTypeInternal[evt]
     if (!recognizedType) {
       console.log(`unrecognized type ${evt}`)
     } else {
-      setPartTypeSelection(recognizedType)
+      setPartTypeSelection(evt)
     }
+  }
+
+  const advancedButtonProps = {
+    promptPartType: partTypeSelection,
+    index: index
   }
 
   return (
     <div>
-      <p>Type: {partTypeSelection}</p>
+      <p>Type: {promptPartTypeInternal[partTypeSelection]}</p>
       <Dropdown onSelect={handleDropdownChange}>
         <Dropdown.Toggle variant="success" id="dropdown-basic">
           Select prompt part type
@@ -70,10 +105,13 @@ const RandomPromptGenerator = ({
 
         <Dropdown.Menu>
           <FriendlyDropdownType eventKey="plaintext" />
-          <FriendlyDropdownType eventKey="randomdata.beer" />
+          <FriendlyDropdownType eventKey="randomdata.beers" />
           <FriendlyDropdownType eventKey="randomdata.user" />
         </Dropdown.Menu>
       </Dropdown>
+      <div>
+        <AdvancedButtons { ...advancedButtonProps } />
+      </div>
     </div>
   )
 }
@@ -86,12 +124,12 @@ const AdvancedPartSettings = ({
   const [showMe, setShowMe] = useState(false)
 
   if (!showMe) {
-    return <div> <Button onClick={() => setShowMe(true)}>Advanced Settings</Button> </div>
+    return <div> <Button onClick={() => setShowMe(true)}>Advanced</Button> </div>
   } else {
     return (
       <div>
-        <Button onClick={() => setShowMe(false)}>Hide Advanced Settings</Button>
-        <RandomPromptGenerator index={index} />
+        <Button onClick={() => setShowMe(false)}>Hide Advanced</Button>
+        <AdvancedPromptPartGenerator index={index} />
       </div>
     )
   }
@@ -182,7 +220,7 @@ const Output = () => {
   )
 }
 
-const Settings = () => {
+const UniversalSettings = () => {
   const dispatch = useAppDispatch()
   const settings = useAppSelector((state) => state.promptBuilder.settings)
   const {
@@ -218,12 +256,8 @@ const FetchPrompt = ({
   const [showMe, setShowMe] = useState(collapse === false)
   const loadedPrompts = useAppSelector((state) => state.promptBuilder.loadedPrompts)
   const activePrompt = useAppSelector((state) => state.promptBuilder.activePrompt)
-  const handleGetPromptClick = () => {
-    dispatch(getPromptById(idInputState))
-  }
-  const handleSelect = (promptId) => {
-    dispatch(useLoadedPromptToSetBuilder(promptId))
-  }
+  const handleGetPromptClick = () => dispatch(getPromptById(idInputState))
+  const handleSelect = (promptId) => dispatch(useLoadedPromptToSetBuilder(promptId))
   if (!showMe) {
     return (
       <Button className={styles.customBtn} onClick={() => setShowMe(true)}>Show prompt loader</Button>
@@ -312,7 +346,7 @@ const renderBuilder = (parts, uiConfig) => {
   return (
     <div>
       { fetchPrompt.show && <FetchPrompt { ...fetchPrompt } /> }
-      { settings.show    && <Settings /> }
+      { settings.show    && <UniversalSettings /> }
       { partBuilder.show && <PartBuilder { ...builderProps } /> }
       { output.show      && <Output /> }
       { copyPrompt.show  && <CopyPrompt /> }
