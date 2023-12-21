@@ -10,6 +10,7 @@ import {
   updateSettingChaos,
   getPromptById,
   getRandomPrompt,
+  savePrompt,
   useLoadedPromptToSetBuilder,
   defaultRgb
 } from "./promptBuilderSlice"
@@ -35,7 +36,7 @@ const copyPromptPart = (text) => {
 const promptPartTypeInternal = {
   "plaintext": "Plaintext",
   "randomdata.beers": "Random Beer (Random Data API)",
-  "randomdata.user": "Random User (Random Data API)"
+  "randomdata.users": "Random User (Random Data API)"
 }
 
 const FriendlyDropdownType = ({
@@ -106,7 +107,7 @@ const AdvancedPromptPartGenerator = ({
         <Dropdown.Menu>
           <FriendlyDropdownType eventKey="plaintext" />
           <FriendlyDropdownType eventKey="randomdata.beers" />
-          <FriendlyDropdownType eventKey="randomdata.user" />
+          <FriendlyDropdownType eventKey="randomdata.users" />
         </Dropdown.Menu>
       </Dropdown>
       <div>
@@ -334,22 +335,41 @@ const CopyPrompt = () => {
   )
 }
 
-const renderBuilder = (parts, uiConfig) => {
-  const {
-    settings,
-    fetchPrompt,
-    partBuilder,
-    output,
-    copyPrompt
-  } = uiConfig;
-  const builderProps = { parts: parts };
+const SavePrompt = () => {
+  const dispatch = useAppDispatch()
+  const activePrompt = useAppSelector((state) => state.promptBuilder.activePrompt)
+
+  const [promptIdInputState, setPromptIdInputState] = useState('custom-1')
+
+  const handleClickSavePrompt = () => {
+    dispatch(savePrompt({
+      promptId: promptIdInputState,
+      promptData: activePrompt
+    }))
+  }
+
   return (
     <div>
-      { fetchPrompt.show && <FetchPrompt { ...fetchPrompt } /> }
-      { settings.show    && <UniversalSettings /> }
-      { partBuilder.show && <PartBuilder { ...builderProps } /> }
-      { output.show      && <Output /> }
-      { copyPrompt.show  && <CopyPrompt /> }
+      <Form>
+        <Form.Group>
+          <Form.Label>Enter prompt ID to Save</Form.Label>
+          <Form.Control type="text" value={promptIdInputState} onChange={(e) => setPromptIdInputState(e.target.value)}></Form.Control>
+          <Button onClick={handleClickSavePrompt}>Save Prompt</Button>
+        </Form.Group>
+      </Form>
+    </div>
+  )
+}
+
+const renderBuilder = (parts, uiConfig) => {
+  return (
+    <div>
+      { uiConfig.fetchPrompt.show && <FetchPrompt { ...uiConfig.fetchPrompt } /> }
+      { uiConfig.settings.show    && <UniversalSettings /> }
+      { uiConfig.partBuilder.show && <PartBuilder parts={parts} /> }
+      { uiConfig.output.show      && <Output /> }
+      { uiConfig.copyPrompt.show  && <CopyPrompt /> }
+      { uiConfig.savePrompt.show  && <SavePrompt /> }
     </div>
   )
 }
@@ -376,6 +396,9 @@ export function PromptBuilder() {
       show: true
     },
     copyPrompt: {
+      show: true
+    },
+    savePrompt: {
       show: true
     }
   })

@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 import datastore
 import api_client
 import random
@@ -39,6 +39,13 @@ def list_prompts():
         "message": "prompts not found"
     }, 404)
 
+@app.post('/api/prompts/<prompt_id>')
+def save_prompt(prompt_id):
+    datastore.db_save_prompt(prompt_id, request.get_json())
+    return({
+        "message": "prompt saved"
+    }, 200)
+
 @app.get('/api/data/random/<data_type>')
 def get_random_data(data_type):
     random_data = api_client.get_random_data(data_type)
@@ -52,7 +59,6 @@ def get_random_data(data_type):
 
 def make_prompt_from_random_data(data_type, data):
     if data_type == "beers":
-        print(data)
         brands = list(map(lambda d: d["brand"], data))
         random_brand = random.choice(brands)
         styles = list(map(lambda d: d["style"], data))
@@ -63,7 +69,15 @@ def make_prompt_from_random_data(data_type, data):
             "prompt": f"a glass of {random_brand} beer , {random_style} style beer , beer with name '{random_name}' on label"
         }
     elif data_type == "users":
-        print("users!!!")
+        first_names = list(map(lambda d: d["first_name"], data))
+        random_first_name = random.choice(first_names)
+
+        last_names = list(map(lambda d: d["first_name"], data))
+        random_last_name = random.choice(first_names)
+
+        return {
+            "prompt": f"a fake social media profile for a person named {random_first_name} {random_last_name}"
+        }
     else:
         print("no match.")
         return data

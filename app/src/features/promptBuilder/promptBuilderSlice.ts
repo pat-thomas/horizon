@@ -3,7 +3,8 @@ import { RootState, AppThunk } from "../../app/store"
 import { PromptPart } from "../../app/types"
 import {
   httpGetPromptById ,
-  httpGetRandomPrompt
+  httpGetRandomPrompt,
+  httpSavePrompt
 } from "../../apiClient"
 
 interface LoadedPrompt extends Prompt {
@@ -100,6 +101,11 @@ export const getPromptById = createAsyncThunk(
 export const getRandomPrompt = createAsyncThunk(
   'prompt/getRandomPrompt',
   httpGetRandomPrompt
+)
+
+export const savePrompt = createAsyncThunk(
+  'prompt/savePrompt',
+  httpSavePrompt
 )
 
 export const promptBuilderSlice = createSlice({

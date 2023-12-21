@@ -11,6 +11,12 @@ def db_get_prompt(prompt_id):
     parsed_data = json.loads(data)
     return parsed_data
 
+def db_save_prompt(prompt_id, prompt_data):
+    prompt_path = f"./data/prompts/{prompt_id}.json"
+    with open(prompt_path, "w") as f:
+        json.dump(prompt_data, f)
+
+
 def db_get_tour(tour_id):
     tour_path = f"./data/tours/{tour_id}.json"
     if not os.path.isfile(tour_path): return

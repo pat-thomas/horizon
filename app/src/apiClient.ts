@@ -15,6 +15,14 @@ export const httpGetPromptById = async (promptId: string, thunkAPI) => {
   return { ...response.data , id: promptId }
 }
 
+export const httpSavePrompt = async ({
+  promptId,
+  promptData
+}, thunkAPI) => {
+  const response = await axios.post(apiPath(`prompts/${promptId}`), promptData)
+  return { ...response.data , id: promptId }
+}
+
 export const httpGetRandomData = async (dataType: string, thunkAPI) => {
   const response = await axios.get(apiPath(`data/random/${dataType}`))
   return { data: response.data , dataType: dataType }
@@ -24,7 +32,6 @@ export const httpGetRandomPrompt = async ({
     dataType,
     promptIndex
   }, thunkAPI) => {
-  console.log('httpGetRandomPrompt')
   const response = await axios.get(apiPath(`data/random/${dataType}/prompt`))
   return { data: response.data , dataType: dataType , promptIndex: promptIndex }
 }
