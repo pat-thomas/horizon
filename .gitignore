@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/app/node_modules
+/hzn_app/node_modules
 /.pnp
 .pnp.js
 
@@ -22,6 +22,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-/server/.venv
-/server/__pycache__
-/server/promptserver/__pycache__
+/hzn_server/.venv
+/hzn_server/__pycache__
+/hzn_server/promptserver/__pycache__
