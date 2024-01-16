@@ -172,7 +172,6 @@ const PromptPart = (props) => {
     <div style={{'backgroundColor': divBackgroundColorStr, 'color': 'white'}} key={index}>
       <Form>
         <Form.Group>
-          <Form.Label>Enter/modify prompt part</Form.Label>
           <Form.Control type="text" onChange={(e) => dispatch(updatePartText({text: e.target.value, index: index}))} value={part.text} />
         </Form.Group>
       </Form>
@@ -210,7 +209,7 @@ const Output = () => {
           } = p;
           const part = parts[index]
           return (
-            <div>
+            <div key={'Output.' + index}>
               {text} ::{weight}&nbsp;
             </div>
           )
@@ -301,7 +300,7 @@ const FetchPrompt = ({
 }
 
 const Parts = ({parts}) => {
-  return <div> {parts.map((data, index) => <PromptPart index={index} /> )} </div>
+  return <div> {parts.map((data, index) => <PromptPart key={'PromptPart.' + index} index={index} /> )} </div>
 }
 
 const PartTool = () => {
@@ -331,6 +330,49 @@ const CopyPrompt = () => {
         }}>
         Copy prompt to clipboard
       </Button>
+    </div>
+  )
+}
+
+const AppHistory = () => {
+  const dispatch = useAppDispatch()
+  const appHistory = useAppSelector((state) => state.promptBuilder.appHistory)
+  const rolledUpHistory = useAppSelector((state) => state.promptBuilder.rolledUpHistory)
+
+  return (
+    <div>
+      <div>
+        <p>History Entries:</p>
+        {appHistory && appHistory.map((historyObj, index) => {
+          console.log(historyObj)
+          return (
+            <div>
+              <p>{index} [ {historyObj.name} ]: {JSON.stringify(historyObj.data, null, 2)}</p>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+
+  return (
+    <div>
+      <div>
+        <p>Rolled up history:</p>
+        <p>{JSON.stringify(rolledUpHistory, null, 2)}</p>
+      </div>
+
+      <div>
+        <p>History Entries:</p>
+        {appHistory && appHistory.map((historyObj, index) => {
+          console.log(historyObj)
+          return (
+            <div>
+              <p>{index} [ {historyObj.name} ]: {JSON.stringify(historyObj.data, null, 2)}</p>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -370,6 +412,7 @@ const renderBuilder = (parts, uiConfig) => {
       { uiConfig.output.show      && <Output /> }
       { uiConfig.copyPrompt.show  && <CopyPrompt /> }
       { uiConfig.savePrompt.show  && <SavePrompt /> }
+      { uiConfig.appHistory.show  && <AppHistory /> }
     </div>
   )
 }
@@ -399,6 +442,9 @@ export function PromptBuilder() {
       show: true
     },
     savePrompt: {
+      show: true
+    },
+    appHistory: {
       show: true
     }
   })
