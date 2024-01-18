@@ -119,7 +119,6 @@ const doLoadPrompt = (state, data) => {
   if (match) {
     return state
   }
-  console.log('state.loadedPrompts', state.loadedPrompts)
   if (state.loadedPrompts) {
     state.loadedPrompts = [...state.loadedPrompts , data]
   } else {
@@ -130,12 +129,11 @@ const doLoadPrompt = (state, data) => {
 
 const doUpdateSettings = (state, newSettings) => {
   state.settings = newSettings
-  console.log('TODO: implement doUpdateSettings')
   return state
 }
 
 const doSetActivePrompt = (state, data) => {
-  console.log('TODO: implement doSetActivePrompt')
+  state.activePrompt = data
   return state
 }
 
@@ -147,30 +145,25 @@ const applyHistoryUpdate = (state, actionRollup) => {
   let newState
   switch(name) {
     case 'loadPrompt':
-      console.log('applyHistoryUpdate loadPrompt')
-      console.log(data)
       newState = doLoadPrompt(state, data)
       break
     case 'updateSettings':
-      console.log('applyHistoryUpdate updateSettings')
       newState = doUpdateSettings(state, data)
       break
     case 'setActivePrompt':
-      console.log('applyHistoryUpdate setActivePrompt')
       newState = doSetActivePrompt(state, data)
       break
     default:
-      console.log('applyHistoryUpdate DEFAULT')
   }
-  console.log('newState', newState)
   return newState
 }
 
 const generateStateFromHistory = (appHistory) => {
-  return appHistory.reduce((stateAcc, historyObj) => {
+  const stateFromHistory = appHistory.reduce((stateAcc, historyObj) => {
     stateAcc = applyHistoryUpdate(stateAcc, historyObj)
     return stateAcc
   }, {})
+  return stateFromHistory
 }
 
 const updateHistory = (state, actionRollup) => {
@@ -178,19 +171,8 @@ const updateHistory = (state, actionRollup) => {
 }
 
 const initialState: PromptBuilderState = {
-  activePrompt: samplePrompt0,
-  settings: {
-    weightDifference: 0.25,
-    style: 250,
-    chaos: 0
-  },
-  loadedPrompts: [
-    { ...samplePrompt0, id: 'sample0' },
-    //{ ...samplePrompt1, id: 'sample1' },
-    //{ ...samplePrompt2, id: 'sample2' }
-  ],
-  appHistory: initialAppHistory,
-  rolledUpHistory: generateStateFromHistory(initialAppHistory)
+  ...generateStateFromHistory(initialAppHistory),
+  appHistory: initialAppHistory
 }
 
 export const getPromptById = createAsyncThunk(
@@ -237,8 +219,6 @@ const doGetRandomPrompt = (state, action) => {
 // 1) add an entry to the history tape
 // 2) perform the side effect of updating the application state
 const handleGetRandomPrompt = (state, action) => {
-  console.log('handleGetRandomPrompt', state)
-  console.log('state.history', state.history)
   updateHistory(state, {
     name: 'getRandomPrompt.fulfilled',
     data: action
@@ -254,21 +234,14 @@ export const promptBuilderSlice = createSlice({
   reducers: {
     updateSettingWeightDifference: (state, action) => {
       const newWeightDifference = action.payload
-      updateHistory({
-        name: 'updateSettings',
-        data: action
-      })
       const newSettings = doUpdateSettings(state, {
         ...state.settings,
-        weightDifference: action.payload
-      })
-      updateHistory(state, {
-      })
+        weightDifference: newWeightDifference
+      }).settings
       updateHistory(state, {
         name: 'updateSettings',
         data: newSettings
       })
-      state.settings.weightDifference = action.payload
     },
     updateSettingStyle: (state, action) => {
       state.settings.style = action.payload
@@ -315,13 +288,17 @@ export const promptBuilderSlice = createSlice({
       const matchingLoadedPrompts = state.loadedPrompts.filter((p) => {
         return p.id === promptId
       })
+      const promptToUse = matchingLoadedPrompts[0]
+      updateHistory(state, {
+        name: 'updateSettings',
+        data: promptToUse
+      })
       // there should never be more than one match anyway, if there is, just use the first
-      state.activePrompt = matchingLoadedPrompts[0]
+      state.activePrompt = promptToUse
     }
   },
   extraReducers: (builder) => {
     builder.addCase(getPromptById.pending, (state) => {
-      console.log('loading')
       return state
       // state.loading = true
     })
@@ -339,7 +316,6 @@ export const promptBuilderSlice = createSlice({
     })
 
     builder.addCase(getRandomPrompt.pending, (state) => {
-      console.log('PENDING getRandomPrompt')
       return state
     })
     builder.addCase(getRandomPrompt.fulfilled, (state, action) => {

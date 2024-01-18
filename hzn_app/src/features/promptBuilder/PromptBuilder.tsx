@@ -50,7 +50,6 @@ const AdvancedButtons = ({
   index
 }) => {
   const dispatch = useAppDispatch()
-  console.log('promptPartType', promptPartType)
   const handleClickLoadRandomData = () => {
   }
   const dataTypeForApi = () => {
@@ -85,7 +84,6 @@ const AdvancedPromptPartGenerator = ({
   const handleDropdownChange = (evt) => {
     const recognizedType = promptPartTypeInternal[evt]
     if (!recognizedType) {
-      console.log(`unrecognized type ${evt}`)
     } else {
       setPartTypeSelection(evt)
     }
@@ -344,7 +342,7 @@ const AppHistory = () => {
       <div>
         <p>History Entries:</p>
         {appHistory && appHistory.map((historyObj, index) => {
-          console.log(historyObj)
+          console.log('rendering history object', historyObj)
           return (
             <div>
               <p>{index} [ {historyObj.name} ]: {JSON.stringify(historyObj.data, null, 2)}</p>
@@ -429,7 +427,7 @@ export function PromptBuilder() {
       collapse: true
     },
     settings: {
-      show: false
+      show: true
     },
     partBuilder: {
       show: true,
