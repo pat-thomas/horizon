@@ -1,7 +1,10 @@
+import Login from "./Login"
+
 const Home = () => {
   return (
     <>
-      <p>Welcome to Horizon! Click one of the links above to get started.</p>
+      <p>this is where the home component will go</p>
+      <Login />
     </>
   )
 }
