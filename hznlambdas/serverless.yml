@@ -5,10 +5,38 @@ provider:
   name: aws
   runtime: python3.9
 
+layers:
+  libLayer:
+    path: libLayer
+    description: library code
+
+plugins:
+  - serverless-offline
+
 functions:
   hello:
     handler: handler.hello
     events:
       - httpApi:
           path: /
+          method: get
+  getUser:
+    handler: handlers/user/getUser.lambda_handler
+    events:
+      - httpApi:
+          path: /user/{id}
+          method: get
+  logInUser:
+    handler: handlers/user/logInUser.lambda_handler
+    events:
+      - httpApi:
+          path: /user/{id}
+          method: post
+  getRandomData:
+    handler: handlers/data/random/getRandomData.lambda_handler
+    layers:
+      - !Ref LibLayerLambdaLayer
+    events:
+      - httpApi:
+          path: /api/data/random/{data_type}/prompt
           method: get
